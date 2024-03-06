@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-chat</title>
+<link rel="stylesheet" href="../static/css/index.css">
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body class="black">
+<div class="container border" id="grid">
+  <div class="header">
+    <div class="header-sections-container">
+        <div class="Thread-icon header-section">
+          {% include 'Thread-icones.html' %}
+        </div>
+        <div class="Thread-title header-section border-left border-right">Entête - Contenu Principal</div>
+        <div class="Settings-icon header-section">
+          {% include 'Settings-icon.html' %}
+        </div>
+    </div>
+  </div>
+  <div class="icones border-top border-right">
+    <div class="container-icon">
+      <button class="thread-button" data-state="closed">
+        <svg class="thread-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+        </svg>
+        <div class="overlay"></div>
+      </button>
+    </div>
+    
+  </div>
+  <div class="Threads border supp-border-left" id="Threads">
+    {% include 'Thread.html' %}
+
+    {% include 'Thread.html' %}
+
+    {% include 'Thread.html' %}
+  </div>
+  <div class="Chat border supp-border-right supp-border-left" id="Chat">
+    {% include 'Chat.html' %}
+  </div>
+  <div class="Settings border supp-border-right" id="Settings"></div>
+  <div class="footer border-left">
+    <div class="footer-section"></div>
+  </div>
+</div>
+<script src="../static/js/icones.js"></script>
+</body>
+</html>

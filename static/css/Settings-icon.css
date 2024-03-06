@@ -1,0 +1,76 @@
+.Settings-icon{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .title-Settings{
+    display: flex;
+    justify-content: space-between;
+    padding-left: 16px;
+    align-items: center;
+    font-weight: bold;
+  }
+
+  .icon-settings{
+    margin-top: 4%;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .svg-settings{
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+  
+  .icon2-arrow-left{
+    padding-right: 16px;
+    cursor: pointer;
+    color: #A8A29E;
+    display: none;
+  }
+  
+  .icon2-arrow-right{
+    padding-right: 16px;
+    cursor: pointer;
+    color: #A8A29E;
+  }
+
+  .Thread-param{
+    position: absolute; /* Fait correspondre à 'absolute' */
+    right: 7%; /* Fait correspondre à 'right-0' */
+    top: 4.5%; /* Fait correspondre à 'top-11' - suppose que '11' est une unité arbitraire qui doit être convertie en pixels */
+    z-index: 20; /* Fait correspondre à 'z-20' */
+    width: 16rem; /* Fait correspondre à 'w-64' - en supposant que '1rem' équivaut à 4 unités arbitraires */
+    overflow: hidden; /* Fait correspondre à 'overflow-hidden' */
+    border-radius: 0.5rem; /* Fait correspondre à 'rounded-lg' - l'exactitude de cette valeur peut varier selon le système de design */
+    border: 1px solid; /* Fait correspondre à 'border' */
+    border-color: #333; /* 'border-border' n'est pas un nom de couleur standard. Remplacez '#D1D5DB' par la valeur correcte de '--border-color' si elle est définie ailleurs dans votre CSS. */
+    background-color: black; /* 'bg-background' n'est pas une valeur standard. Remplacez '#F9FAFB' par la valeur correcte de '--background-color' si elle est définie ailleurs dans votre CSS. */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Fait correspondre à 'shadow-lg' - cette valeur est une estimation; ajustez en fonction de votre système de design */
+    display: none;
+    padding: 0.5%;
+    color: #A8A29E;
+  }
+  
+  .menu {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.5rem; /* Remplace space-x-2, fonctionne avec les navigateurs modernes */
+    padding: 0.5rem 1rem; /* py-2 et px-4 combinés */
+  }
+  
+  .menu:hover {
+    background-color: #292524; /* Changez cette couleur selon vos besoins */
+  }
+  
+  .menu2 {
+    display: flex;       /* Correspond à `flex` de Tailwind CSS */
+    flex-direction: column;
+  }  
+
+  .icon3{
+    flex-shrink: 0;
+    top: 0;
+  }

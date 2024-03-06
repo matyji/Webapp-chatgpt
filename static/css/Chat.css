@@ -1,0 +1,78 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    position: relative;
+}
+
+.icon, .assistant-logo {
+    height: 2rem;
+    width: 2rem;
+}
+
+.username {
+    font-weight: bold;
+    text-transform: capitalize;
+    color: #6b7280; /* Adjust the color as needed */
+}
+
+.timestamp, .message-text {
+    font-size: 0.875rem; /* 14px */
+    color: #9ca3af; /* Adjust the color as needed */
+}
+
+.message-options {
+    position: absolute;
+    display: none; /* Initially hidden */
+    right: 2rem; /* Adjust as needed */
+}
+
+.message:hover .message-options {
+    display: flex; /* Show options on hover */
+}
+
+.input-container {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.message-input {
+    width: 100%;
+    max-height: 25rem;
+    overflow-y: auto;
+    padding-right: 1.25rem; /* Adjust padding for the scrollbar */
+    border: 1px solid #d1d5db; /* Adjust border color as needed */
+    border-radius: 0.375rem; /* Adjust border-radius as needed */
+    resize: none;
+}
+
+.send-button {
+    min-width: 6.25rem; /* 100px */
+    background-color: #3b82f6; /* Primary button color */
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+}
+
+.send-button:disabled {
+    background-color: #9ca3af; /* Disabled button color */
+}
