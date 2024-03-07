@@ -1,0 +1,41 @@
+.icon-user {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem; /* h-8 */
+    width: 2rem; /* w-8 */
+    border-radius: 9999px; /* rounded-full */
+    border: 1px solid #333; /* border */
+}
+  
+.user-logo {
+    width: 12px;
+    height: 16px;
+    fill: #9CA3AF; /* Assuming #9CA3AF is the desired color */
+  }
+
+.username {
+    font-weight: bold;
+    text-transform: capitalize;
+    color: #6b7280; /* Adjust the color as needed */
+}
+
+.timestamp{
+    font-size: 0.875rem; /* 14px */
+    color: #9ca3af; /* Adjust the color as needed */
+}
+
+.message-text{
+    font-size: 0.875rem; /* 14px */
+    color: white; /* Adjust the color as needed */
+}
+
+.entete-message{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* gap-x-2 */
+    margin-top: 0.5rem; /* mt-2 */
+    margin-bottom: 0.5rem; /* mb-2 */
+    position: relative;
+}
+

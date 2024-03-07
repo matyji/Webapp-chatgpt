@@ -1,0 +1,152 @@
+* {
+    box-sizing: border-box;
+  }
+
+  body{
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+  }
+  .container {
+    display: grid;
+    grid-template-rows: 50px 1fr 50px; /* 50px pour l'entête et le pied de page, contenu au milieu */
+    grid-template-columns: 3.25% 12.55% 67.45% 16.8%; /* Deux colonnes de 150px à gauche */
+    width: 100%;
+    height: 100vh; /* Hauteur totale de la fenêtre */
+    color: white;
+  }
+
+  .container.expanded-chat1 {
+    grid-template-columns: 3.25% 1fr 16.8%; /* Masquez Threads en faisant sa colonne de 0fr et doublez l'espace pour Chat */
+  }
+
+  .container.expanded-chat2 {
+    grid-template-columns: 3.25% 12.55% 1fr; /* Masquez Threads en faisant sa colonne de 0fr et doublez l'espace pour Chat */
+  }
+
+  .container.container.expanded-chat3{
+    grid-template-columns: 3.25% 1fr; /* Masquez Threads en faisant sa colonne de 0fr et doublez l'espace pour Chat */
+  }
+  
+  .header, .footer {
+    grid-column: 2 / -1; /* Commence de la deuxième colonne et s'étend jusqu'à la dernière */
+    height: 100%;
+  }
+  .header > .header-section, .footer > .footer-section {
+    height: 100%;
+    position: fixed;
+  }
+  .header > .header-section:last-child, .footer > .footer-section:last-child {
+    border-right: none; /* Pas de bordure à droite pour le dernier élément */
+  }
+  /*
+  .extra-sidebar-left {
+  }
+  .sidebar-left {
+  }
+  .main-content {
+  }
+  .sidebar-right {
+  }*/
+  .header-sections-container {
+    display: grid;
+    grid-template-columns: 12.9% 69.8% 17.2%; /* Répète la structure des colonnes pour le pied de page */
+    height: 100%;
+  }
+
+.black{
+  background-color: black;
+}
+
+.Thread{
+  background-color: #333;
+}
+
+.border{
+  border: 1px solid #333;
+}
+
+.supp-border-right{
+  border-right: 0px solid #333;
+}
+
+.supp-border-left{
+  border-left: 0px solid #333;
+}
+
+.supp-border-top{
+  border-top: 0px solid #333;
+}
+
+.supp-border-bottom{
+  border-bottom: 0px solid #333;
+}
+
+.border-top{
+  border-top: 1px solid #333; 
+}
+
+.border-left{
+  border-left: 1px solid #333; 
+}
+.border-right{
+  border-right: 1px solid #333; 
+}
+.border-bottom{
+  border-bottom: 1px solid #333; 
+}
+
+.Chat{
+  flex-grow: 1;
+}
+
+.Thread-title{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 2%;
+  font-weight: bold;
+}
+
+.Threads{
+  padding-left: 0.75rem; /* px-3 correspond à un padding horizontal de 0.75rem */
+  padding-right: 0.75rem;
+  padding-top: 1rem;    /* py-4 correspond à un padding vertical de 1rem */
+  padding-bottom: 1rem;
+}
+
+.container-icon {
+  margin-top: 75%;
+  position: relative;
+  display: flex;
+  padding: 0.5rem; /* p-2 équivaut à un padding de 0.5rem de tous les côtés */
+  height: 3rem;
+}
+
+.thread-button {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.thread-icon {
+  z-index: 10; /* Assurez-vous que l'icône est au-dessus de l'overlay */
+  color: #6c757d; /* Remplacer par la couleur exacte pour 'text-muted-foreground' */
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #333;
+  border-radius: 0.5rem;
+  opacity: 1;
+}

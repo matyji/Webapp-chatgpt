@@ -1,0 +1,11 @@
+<link rel="stylesheet" href="../static/css/Chat.css">
+<div class="chat-container">
+    <div class="messages-container">
+        {% include 'message-user.html' %}
+        {% include 'message-assistant.html' %}
+    </div>
+    <div class="input-container">
+        <textarea class="message-input" id="message-input" placeholder="Enter your message..."></textarea>
+        <button class="send-button" id="send-button" disabled>Send</button>
+    </div>
+</div>
