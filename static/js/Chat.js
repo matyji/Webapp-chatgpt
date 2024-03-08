@@ -26,16 +26,22 @@ function sendMessage() {
         return;
     }else{
         document.getElementById('message-input').value = null;
-        createMessageUserFromTemplate("message-user", userInput)
+        createMessageUserFromTemplate("message-user", userInput);
         envoyerRequete(userInput);
     }
 }
 
 
 document.getElementById('send-button').addEventListener('click', sendMessage);
+document.getElementById('message-input').addEventListener('keydown', function(event){
+    if(event.key === 'Enter' && ! event.shiftKey){
+        sendMessage();
+    }
+});
 
 
-function createMessageUserFromTemplate(templateName, messageContent) {
+
+function createMessageUserFromTemplate(templateName, messageContent, date) {
     fetch(`/get_template/${templateName}`)
         .then(response => response.text())
         .then(template => {
@@ -44,7 +50,7 @@ function createMessageUserFromTemplate(templateName, messageContent) {
             tempDiv.innerHTML = template;
             
             // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = new Date().toLocaleTimeString();
+            tempDiv.querySelector('.timestamp').textContent = date;
             tempDiv.querySelector('.message-content-user').textContent = messageContent;
             // Insérer le nouveau message dans le DOM
             const messagesContainer = document.querySelector('.messages-container');
@@ -58,17 +64,21 @@ function createMessageUserFromTemplate(templateName, messageContent) {
 }
 
 function envoyerRequete(userInput) {
+    const threadID = document.getElementById("thread-id").textContent;
+    let date_update = getCurrentDateTimeFormatted();
+    console.log(date_update)
+    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
     fetch('/envoyerRequete', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userInput }),
+        body: JSON.stringify(data_user),
     })
     .then(response => response.json())
     .then(data => {
         console.log('Réponse reçue:', data);
-        reponse = data["reponse"]
+        reponse = data["content"]
         createMessageAssistantFromTemplate("message-assistant", reponse)
     })
     .catch((error) => {
@@ -76,7 +86,7 @@ function envoyerRequete(userInput) {
     });
 }
 
-function createMessageAssistantFromTemplate(templateName, reponse) {
+function createMessageAssistantFromTemplate(templateName, reponse, date) {
     fetch(`/get_template/${templateName}`)
         .then(response => response.text())
         .then(template => {
@@ -85,7 +95,7 @@ function createMessageAssistantFromTemplate(templateName, reponse) {
             tempDiv.innerHTML = template;
             
             // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = new Date().toLocaleTimeString();
+            tempDiv.querySelector('.timestamp').textContent = date;
             tempDiv.querySelector('.message-assistant-content').textContent = reponse;
             // Insérer le nouveau message dans le DOM
             const messagesContainer = document.querySelector('.messages-container');
@@ -96,4 +106,42 @@ function createMessageAssistantFromTemplate(templateName, reponse) {
             }
         })
         .catch(error => console.error('Error loading the template:', error));
+}
+
+
+function formatDateTime(dateTimeString) {
+    // Parser manuellement la chaîne de date pour obtenir jour, mois, année, heure et minute
+    const [datePart, timePart] = dateTimeString.split(' ');
+    const [day, month, year] = datePart.split('/').map(num => parseInt(num, 10));
+    const [hour, minute] = timePart.split(':').map(num => parseInt(num, 10));
+
+    // Construire un objet Date en utilisant les composantes correctes
+    // Attention : le mois est indexé à partir de 0 en JavaScript (0 = janvier, 11 = décembre)
+    const dateTime = new Date(year, month - 1, day, hour, minute);
+    const now = new Date();
+
+    // Vérifier si la date est celle d'aujourd'hui en comparant les composantes de date
+    const isToday = dateTime.getDate() === now.getDate() &&
+                    dateTime.getMonth() === now.getMonth() &&
+                    dateTime.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+        // Si oui, retourner seulement l'heure
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    } else {
+        // Sinon, retourner la date complète dans le format souhaité
+        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+}
+
+function getCurrentDateTimeFormatted() {
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Janvier est 0 !
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
 }

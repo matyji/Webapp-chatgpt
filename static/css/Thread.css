@@ -1,4 +1,4 @@
-.message-group {
+.thread-group {
     position: relative;
     margin-bottom: 0.25rem;
     display: flex;
@@ -8,26 +8,26 @@
     justify-content: baseline;
   }
 
-  .message-content{
+  .thread-content{
     border-radius: 0.5rem;
     background-color: black;
   }
   
-  .message-content:hover {
+  .thread-content:hover {
     background-color: #333;
   }
   
-  .message-group:hover .overlay {
+  .thread-group:hover .overlay {
     background-color: #333;
   }
   
-  .message-content {
+  .thread-content {
     position: relative;
     z-index: 10;
     padding: 1rem;
   }
   
-  .message-time {
+  .thread-time {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -38,7 +38,7 @@
     margin-bottom: 0.5rem;
   }
   
-  .message-title {
+  .thread-title {
     white-space: nowrap;
     overflow: hidden;
     font-weight: bold;
@@ -47,7 +47,7 @@
     font-size: 0.75rem;
   }
   
-  .message-text {
+  .thread-text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -77,7 +77,7 @@
   }
 
   
-  .message-group:hover .icon-container {
+  .thread-group:hover .icon-container {
     visibility: visible;
   }
 

@@ -1,0 +1,41 @@
+.thread-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* équivalent à space-y-4 */
+    padding: 16px; /* équivalent à p-4 */
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    margin-bottom: 0.75rem; /* équivalent à mb-2 */
+    font-weight: bold;
+    color: #D1D5DB; /* équivalent à text-gray-600 */
+    font-size: medium;
+
+} 
+
+.input-thread-title, .thread-id {
+    font-size: 14px; /* équivalent à text-xs */
+    color: #6B7280; /* une couleur approximative pour text-muted-foreground */
+}
+
+/* Styliser l'input */
+.input-thread-title {
+    border: 1px solid #333; /* Une bordure légère */
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: black;
+    color: white;
+    height: 2.75rem;
+}
+
+.input-thread-title:focus-visible{
+    outline: 1px solid #2463eb;
+}

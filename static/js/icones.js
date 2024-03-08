@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-document.getElementById('icon-container').addEventListener('mouseenter', function() {
+/*document.getElementById('icon-container').addEventListener('mouseenter', function() {
     let parent = document.getElementById('message-content');
     let enfant = document.getElementById('icon-container');
     parent.classList.add('hovered');
@@ -130,5 +130,4 @@ document.addEventListener('DOMContentLoaded', function() {
             threadaction.style.display = 'none';
         }
     });
-});
-
+});*/
