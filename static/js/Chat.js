@@ -95,7 +95,7 @@ function createMessageAssistantFromTemplate(templateName, reponse, date) {
             tempDiv.innerHTML = template;
             
             // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = date;
+            tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
             tempDiv.querySelector('.message-assistant-content').textContent = reponse;
             // Insérer le nouveau message dans le DOM
             const messagesContainer = document.querySelector('.messages-container');
@@ -110,29 +110,32 @@ function createMessageAssistantFromTemplate(templateName, reponse, date) {
 
 
 function formatDateTime(dateTimeString) {
+    console.log(dateTimeString);
+    // Vérifier si dateTimeString est défini
+    if (!dateTimeString) {
+        console.error('formatDateTime appelé avec une valeur undefined ou null');
+        return ''; // Retourner une chaîne vide ou une valeur par défaut
+    }
+
     // Parser manuellement la chaîne de date pour obtenir jour, mois, année, heure et minute
     const [datePart, timePart] = dateTimeString.split(' ');
     const [day, month, year] = datePart.split('/').map(num => parseInt(num, 10));
     const [hour, minute] = timePart.split(':').map(num => parseInt(num, 10));
 
-    // Construire un objet Date en utilisant les composantes correctes
-    // Attention : le mois est indexé à partir de 0 en JavaScript (0 = janvier, 11 = décembre)
     const dateTime = new Date(year, month - 1, day, hour, minute);
     const now = new Date();
 
-    // Vérifier si la date est celle d'aujourd'hui en comparant les composantes de date
     const isToday = dateTime.getDate() === now.getDate() &&
                     dateTime.getMonth() === now.getMonth() &&
                     dateTime.getFullYear() === now.getFullYear();
 
     if (isToday) {
-        // Si oui, retourner seulement l'heure
         return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     } else {
-        // Sinon, retourner la date complète dans le format souhaité
         return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     }
 }
+
 
 function getCurrentDateTimeFormatted() {
     const now = new Date();

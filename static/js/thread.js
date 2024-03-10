@@ -109,15 +109,40 @@ function displayChat(threadId) {
         })
         .then(messages => {
             messages.forEach(msg => {
-                console.log(msg["date_update"]);
                 if(msg["role"] === "user"){
                     createMessageUserFromTemplate("message-user", msg["content"], msg["date_update"]) 
                 }else if(msg["role"] === "assistant"){
+                    console.log(msg);
+                    console.log(msg["date_update"]);
                     createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]) 
                 }
             });
-        })
-        .catch(error => {
-            console.error('Erreur lors de la récupération des messages:', error);
         });
+}
+
+function formatDateTime2(dateTimeString) {
+    console.log(dateTimeString);
+    // Vérifier si dateTimeString est défini
+    if (!dateTimeString) {
+        console.error('formatDateTime appelé avec une valeur undefined ou null');
+        return ''; // Retourner une chaîne vide ou une valeur par défaut
+    }
+
+    // Parser manuellement la chaîne de date pour obtenir jour, mois, année, heure et minute
+    const [datePart, timePart] = dateTimeString.split(' ');
+    const [day, month, year] = datePart.split('/').map(num => parseInt(num, 10));
+    const [hour, minute] = timePart.split(':').map(num => parseInt(num, 10));
+
+    const dateTime = new Date(year, month - 1, day, hour, minute);
+    const now = new Date();
+
+    const isToday = dateTime.getDate() === now.getDate() &&
+                    dateTime.getMonth() === now.getMonth() &&
+                    dateTime.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    } else {
+        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
 }

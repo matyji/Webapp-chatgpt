@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 @app.route('/')
 def index():
@@ -27,8 +27,7 @@ def get_template(template_name):
 async def send_request_to_openai():
     # Exemple de récupération de données de la requête, ajustez selon vos besoins
     data_user = request.json
-    thread_id = data_user.get("threadID", "")
-    print(data_user)
+    thread_id = data_user.get("thread_id", "")
     user_message = data_user.get("content", "")
 
     response = openai.completions.create(
@@ -39,7 +38,7 @@ async def send_request_to_openai():
     reponse = response.choices[0].text.strip()
     current_date = datetime.now() 
     date_update = current_date.strftime("%d/%m/%Y %H:%M")
-    data_assistant = {"thread_id": thread_id,"role":"assistant","date_creation":date_update,"date_update": date_update,"object":"thread.message","type":"text","content": reponse}
+    data_assistant = {"thread_id": thread_id,"role":"assistant","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": reponse}
     # Chemin vers le fichier messages.jsonl dans le dossier du thread
     base_dir = 'Threads'
     jsonl_file_path = os.path.join(base_dir, f'{thread_id}', 'messages.jsonl')
