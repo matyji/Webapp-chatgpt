@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 16px; /* équivalent à space-y-4 */
     padding: 16px; /* équivalent à p-4 */
+    margin-bottom: 5%;
 }
 
 .field {
@@ -14,7 +15,7 @@
     margin-bottom: 0.75rem; /* équivalent à mb-2 */
     font-weight: bold;
     color: #D1D5DB; /* équivalent à text-gray-600 */
-    font-size: medium;
+    font-size: 14px;
 
 } 
 
@@ -38,4 +39,62 @@
 
 .input-thread-title:focus-visible{
     outline: 1px solid #2463eb;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 1rem; /* pl-4 in Tailwind */
+    padding-right: 1rem; /* pl-4 in Tailwind */
+    padding-top: 0.5rem; /* pl-4 in Tailwind */
+    padding-bottom: 0.5rem; /* pl-4 in Tailwind */
+    position: relative;
+    background-color: #262629;
+    margin-bottom: 2%;
+    border-top: 0.5px solid #333;
+}
+
+.toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.toolbar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.5rem 0.5rem 0; /* py-2 pr-2 in Tailwind */
+    background: none; /* bg-zinc-100 */
+    border: none;
+    border-radius: 0.5rem; /* rounded-lg */
+    width: 100%;
+    flex: 1;
+    cursor: pointer;
+    width: 24%;
+    height: 24%;
+    color: white;
+}
+
+.toolbar-icon {
+    height: 1.5rem; /* h-5 */
+    width: 1.5rem; /* w-5 */
+    color: white; /* text-gray-400 */
+    cursor: pointer;
+}
+
+.toolbar-text {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.dots-icon {
+    height: 1.5rem; /* h-5 */
+    width: 1.5rem; /* w-5 */
+    color: white;
+}
+
+/* Dark mode styles */
+.dark .toolbar-button, .dark .menu-icon {
+    background-color: #262629; /* dark:bg-zinc-900 */
 }

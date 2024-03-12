@@ -25,9 +25,10 @@ function sendMessage() {
         console.log('Le bouton est désactivé.');
         return;
     }else{
+        let date = getCurrentDateTimeFormatted();
         document.getElementById('message-input').value = null;
-        createMessageUserFromTemplate("message-user", userInput);
-        envoyerRequete(userInput);
+        createMessageUserFromTemplate("message-user", userInput, date);
+        get_AI_reponse(userInput);
     }
 }
 
@@ -50,7 +51,7 @@ function createMessageUserFromTemplate(templateName, messageContent, date) {
             tempDiv.innerHTML = template;
             
             // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = date;
+            tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
             tempDiv.querySelector('.message-content-user').textContent = messageContent;
             // Insérer le nouveau message dans le DOM
             const messagesContainer = document.querySelector('.messages-container');
@@ -66,7 +67,6 @@ function createMessageUserFromTemplate(templateName, messageContent, date) {
 function envoyerRequete(userInput) {
     const threadID = document.getElementById("thread-id").textContent;
     let date_update = getCurrentDateTimeFormatted();
-    console.log(date_update)
     let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
     fetch('/envoyerRequete', {
         method: 'POST',
@@ -79,7 +79,29 @@ function envoyerRequete(userInput) {
     .then(data => {
         console.log('Réponse reçue:', data);
         reponse = data["content"]
-        createMessageAssistantFromTemplate("message-assistant", reponse)
+        createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update'])
+    })
+    .catch((error) => {
+        console.error('Erreur:', error);
+    });
+}
+
+function get_AI_reponse(userInput) {
+    const threadID = document.getElementById("thread-id").textContent;
+    let date_update = getCurrentDateTimeFormatted();
+    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
+    fetch('/get_AI_reponse', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data_user),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Réponse reçue:', data);
+        reponse = data["content"]
+        createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update'])
     })
     .catch((error) => {
         console.error('Erreur:', error);
@@ -93,7 +115,7 @@ function createMessageAssistantFromTemplate(templateName, reponse, date) {
             // Création d'un élément temporaire pour contenir le template HTML
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = template;
-            
+            console.log(date);
             // Mise à jour des parties variables du template
             tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
             tempDiv.querySelector('.message-assistant-content').textContent = reponse;
@@ -110,7 +132,6 @@ function createMessageAssistantFromTemplate(templateName, reponse, date) {
 
 
 function formatDateTime(dateTimeString) {
-    console.log(dateTimeString);
     // Vérifier si dateTimeString est défini
     if (!dateTimeString) {
         console.error('formatDateTime appelé avec une valeur undefined ou null');
@@ -135,7 +156,6 @@ function formatDateTime(dateTimeString) {
         return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     }
 }
-
 
 function getCurrentDateTimeFormatted() {
     const now = new Date();

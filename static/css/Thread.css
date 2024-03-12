@@ -44,7 +44,7 @@
     font-weight: bold;
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 0.75rem;
+    font-size: 14px;
   }
   
   .thread-text {
@@ -85,29 +85,31 @@
     background-color: #333;
   }
 
-  .icon-menu{
-    position: absolute;
-    top: 90%;
-    left: 28%;
-    z-index: 20;
-    width: auto;
-    border-radius: 0.5rem;
-    border: 0.5px solid #A8A29E;
-    background-color: black; /* Remplacer par votre couleur de fond */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-size: 0.75rem;
+.icon-menu{
+  display: none;
+  position: absolute;
+  top: 90%;
+  left: 32%;
+  z-index: 20;
+  width: 65%;
+  border-radius: 0.5rem;
+  border: 0.5px solid #333;
+  background-color: black; /* Remplacer par votre couleur de fond */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem;
 }
 
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     padding: 0.5rem 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
     background-color: black;
     border: none;
     border-radius: 0.5rem;
+    font-weight: bold;
+    justify-content: space-around;;
 }
 
 .menu-item:hover {
@@ -123,6 +125,21 @@
     color: #ea5e5e;
     width: 100%;
 }
+
+.icon-container:hover{
+  background-color: #3e3d3d;
+  border-radius: 0.5rem;
+}
+
+.menu-wrapper:hover .icon-menu {
+  display: block; /* Afficher le menu lors du survol du wrapper */
+}
+
+.icon-menu {
+  display: none; /* Cacher le menu par défaut */
+}
+
+
 
   
   

@@ -1,32 +1,43 @@
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('/get_threads')
-        .then(response => response.json())
-        .then(threads => {
-            const threadsContainer = document.querySelector('.Threads');
-            const addThreadPromises = threads.map(thread => 
-                createThreadFromTemplate('Thread', thread)
-                .then(newThreadContent => {
-                    // Assurez-vous de supprimer "selected" de tous les threads d'abord
-                    document.querySelectorAll('.thread-content.selected').forEach(thread => {
-                        thread.classList.remove('selected');
-                    });
-                    // Ajoutez ensuite "selected" au nouveau thread
-                    newThreadContent.classList.add('selected');
-                    document.getElementById("Thread-title").textContent = thread.titre;
-                    document.getElementById("thread-title-input").value = thread.titre;
-                    document.getElementById("thread-id").textContent = thread.id;
-                })
-                
-            );
-        })
-        .catch(error => console.error('Error:', error));
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('deleteConfirmationModal').style.display = 'none';
+    document.getElementById('cleanConfirmationModal').style.display = 'none';
 });
 
-function adjustSelectedClass() {
-    // Supprimer la classe 'selected' de tous les éléments
-    document.querySelectorAll('.thread-content.selected').forEach(function(thread) {
-        thread.classList.remove('selected');
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    load_Threads();
+});
+
+async function load_Threads() {
+    try {
+        const response = await fetch('/get_threads');
+        const threads = await response.json();
+
+        const threadsContainer = document.querySelector('.Threads');
+        threadsContainer.innerHTML = ''; // Nettoyer le conteneur avant d'ajouter les threads
+
+        let lastThreadId = null; // Garder une trace du dernier ID de thread
+
+        for (const thread of threads) {
+            const newThreadContent = await createThreadFromTemplate('Thread', thread);
+            // Une fois le nouveau contenu de thread ajouté, ajustez la sélection et les autres détails
+            document.querySelectorAll('.thread-content').forEach(tc => tc.classList.remove('selected'));
+            newThreadContent.classList.add('selected');
+            document.getElementById("Thread-title").textContent = thread.titre;
+            document.getElementById("thread-title-input").value = thread.titre;
+            document.getElementById("thread-id").textContent = thread.id;
+
+            lastThreadId = thread.id; // Mettre à jour le dernier ID de thread
+        }
+
+        // Vérifier si lastThreadId est défini avant d'appeler displayChat
+        if (lastThreadId !== null) {
+            displayChat(lastThreadId); // Appeler displayChat pour le dernier thread après la fin de la boucle
+        } else {
+            console.log('Aucun thread à afficher.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
 };
 
 
@@ -36,7 +47,6 @@ document.getElementById('new-thread-btn').addEventListener('click', function() {
     fetch('/new_Thread')
         .then(response => response.json())
         .then(data => {
-            console.log(data); // Afficher la réponse du serveur dans la console
             createThreadFromTemplate("Thread", data)
                 .then(newThreadContent => {
                     // Assurez-vous de supprimer "selected" de tous les threads d'abord
@@ -67,9 +77,19 @@ function createThreadFromTemplate(templateName, data) {
             addClickListenerToThread(threadContent, data); // Ajoutez l'écouteur d'événements
             threadContent.id = data['id'];
             const threadClean = tempDiv.querySelector('.clean-thread');
-            threadClean.id = "clean" + data['id'];
             const threadDelete = tempDiv.querySelector('.delete-thread');
-            threadDelete.id = "delete" + data['id'];
+            threadClean.addEventListener('click', function() {
+                // Afficher la boîte de dialogue de confirmation
+                document.getElementById('cleanConfirmationModal').style.display = 'flex';
+                // Stocker temporairement l'ID du thread sur le bouton de confirmation
+                document.getElementById('confirmClean').setAttribute('data-thread-id', data['id']);
+            });
+            threadDelete.addEventListener('click', function() {
+                // Afficher la boîte de dialogue de confirmation
+                document.getElementById('deleteConfirmationModal').style.display = 'flex';
+                // Stocker temporairement l'ID du thread sur le bouton de confirmation
+                document.getElementById('confirmDelete').setAttribute('data-thread-id', data['id']);
+            });
             // Insérer le nouveau message dans le DOM
             const threadsContainer = document.querySelector('.Threads');
             if (threadsContainer) {
@@ -98,8 +118,9 @@ function addClickListenerToThread(threadElement, data) {
 }
 
 function displayChat(threadId) {
-    const div = document.getElementById('messages-container'); // Remplacez 'maDiv' par l'ID de votre div
-    div.innerHTML = '';
+    const div = document.getElementById('messages-container'); // Utilisez l'ID correct de votre div
+    div.innerHTML = ''; // Videz la div au début pour s'assurer qu'elle est toujours nettoyée
+
     fetch(`/get_thread_by/${threadId}`)
         .then(response => {
             if (!response.ok) {
@@ -108,41 +129,92 @@ function displayChat(threadId) {
             return response.json();
         })
         .then(messages => {
-            messages.forEach(msg => {
-                if(msg["role"] === "user"){
-                    createMessageUserFromTemplate("message-user", msg["content"], msg["date_update"]) 
-                }else if(msg["role"] === "assistant"){
-                    console.log(msg);
-                    console.log(msg["date_update"]);
-                    createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]) 
-                }
-            });
+            if (messages.length === 0) {
+                // Si la réponse est vide, la div a déjà été vidée plus haut
+                // Vous pouvez ajouter ici un message par défaut si nécessaire
+                console.log("Aucun message à afficher.");
+            } else {
+                messages.forEach(msg => {
+                    if(msg["role"] === "user"){
+                        createMessageUserFromTemplate("message-user", msg["content"], msg["date_update"]);
+                    }else if(msg["role"] === "assistant"){
+                        createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]);
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des messages:', error);
+            // Vous pourriez aussi afficher un message d'erreur dans la div ici, si désiré
+            div.innerHTML = 'Erreur lors du chargement des messages.'; // Exemple d'un message d'erreur affiché
         });
 }
 
-function formatDateTime2(dateTimeString) {
-    console.log(dateTimeString);
-    // Vérifier si dateTimeString est défini
-    if (!dateTimeString) {
-        console.error('formatDateTime appelé avec une valeur undefined ou null');
-        return ''; // Retourner une chaîne vide ou une valeur par défaut
-    }
 
-    // Parser manuellement la chaîne de date pour obtenir jour, mois, année, heure et minute
-    const [datePart, timePart] = dateTimeString.split(' ');
-    const [day, month, year] = datePart.split('/').map(num => parseInt(num, 10));
-    const [hour, minute] = timePart.split(':').map(num => parseInt(num, 10));
-
-    const dateTime = new Date(year, month - 1, day, hour, minute);
-    const now = new Date();
-
-    const isToday = dateTime.getDate() === now.getDate() &&
-                    dateTime.getMonth() === now.getMonth() &&
-                    dateTime.getFullYear() === now.getFullYear();
-
-    if (isToday) {
-        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-    } else {
-        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-    }
+function deleteThread(threadId) {
+    fetch(`/delete_thread/${threadId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Problem with deleting the thread');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        load_Threads(); // Recharger les threads après la suppression
+    })
+    .catch(error => console.error('Error:', error));
 }
+
+function cleanThread(threadId) {
+    fetch(`/clean_thread/${threadId}`, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Problem with cleaning the thread');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        load_Threads(); // Recharger les threads après la suppression
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    const threadId = this.getAttribute('data-thread-id');
+    if (threadId) {
+        deleteThread(threadId);
+        // Cacher la boîte de dialogue de confirmation après la suppression
+        document.getElementById('deleteConfirmationModal').style.display = 'none';
+    }
+});
+
+function hideModalDelete() {
+    document.getElementById('deleteConfirmationModal').style.display = 'none';
+}
+
+document.getElementById('closeDelete').addEventListener('click', hideModalDelete);
+document.getElementById('cancelDelete').addEventListener('click', hideModalDelete);
+
+
+document.getElementById('confirmClean').addEventListener('click', function() {
+    const threadId = this.getAttribute('data-thread-id');
+    if (threadId) {
+        cleanThread(threadId);
+        // Cacher la boîte de dialogue de confirmation après la suppression
+        document.getElementById('cleanConfirmationModal').style.display = 'none';
+    }
+});
+
+function hideModalClean() {
+    document.getElementById('cleanConfirmationModal').style.display = 'none';
+}
+
+document.getElementById('closeClean').addEventListener('click', hideModalClean);
+document.getElementById('cancelClean').addEventListener('click', hideModalClean);
