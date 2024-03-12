@@ -15,9 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleButtonState();
 });
 
-function sendMessage() {
+function sendMessage(valeurInput) {
     let sendButton = document.getElementById('send-button');
-    let userInput = document.getElementById('message-input').value;
 
     // Vérifie si le bouton est désactivé
     if (sendButton.disabled) {
@@ -26,43 +25,26 @@ function sendMessage() {
         return;
     }else{
         let date = getCurrentDateTimeFormatted();
-        document.getElementById('message-input').value = null;
-        createMessageUserFromTemplate("message-user", userInput, date);
-        get_AI_reponse(userInput);
+        createMessageUserFromTemplate("message-user", valeurInput, date);
+        get_AI_reponse(valeurInput);
+
     }
 }
 
 
 document.getElementById('send-button').addEventListener('click', sendMessage);
-document.getElementById('message-input').addEventListener('keydown', function(event){
-    if(event.key === 'Enter' && ! event.shiftKey){
-        sendMessage();
+document.getElementById('message-input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        // Récupérer la valeur entrée par l'utilisateur
+        let userInput = document.getElementById('message-input').value;
+        // Réinitialiser la valeur de l'input
+        document.getElementById('message-input').value = ''; 
+        // Envoyer le message
+        sendMessage(userInput);
+        // Enlever le focus de l'input pour faire disparaître le curseur
+        document.getElementById('message-input').blur();
     }
 });
-
-
-
-function createMessageUserFromTemplate(templateName, messageContent, date) {
-    fetch(`/get_template/${templateName}`)
-        .then(response => response.text())
-        .then(template => {
-            // Création d'un élément temporaire pour contenir le template HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = template;
-            
-            // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
-            tempDiv.querySelector('.message-content-user').textContent = messageContent;
-            // Insérer le nouveau message dans le DOM
-            const messagesContainer = document.querySelector('.messages-container');
-            if (!messagesContainer) {
-                console.log('Le conteneur de messages n\'a pas été trouvé.');
-            } else {
-                messagesContainer.appendChild(tempDiv);
-            }
-        })
-        .catch(error => console.error('Error loading the template:', error));
-}
 
 function envoyerRequete(userInput) {
     const threadID = document.getElementById("thread-id").textContent;
@@ -101,35 +83,134 @@ function get_AI_reponse(userInput) {
     .then(data => {
         console.log('Réponse reçue:', data);
         reponse = data["content"]
-        createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update'])
+        return createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update']);
+    })
+    .then(() => {
+        setUpCopyButtons();
+        // Appeler hljs.highlightAll() seulement après que les messages sont dans le DOM
+        hljs.highlightAll();
     })
     .catch((error) => {
         console.error('Erreur:', error);
     });
 }
 
-function createMessageAssistantFromTemplate(templateName, reponse, date) {
-    fetch(`/get_template/${templateName}`)
-        .then(response => response.text())
-        .then(template => {
-            // Création d'un élément temporaire pour contenir le template HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = template;
-            console.log(date);
-            // Mise à jour des parties variables du template
-            tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
-            tempDiv.querySelector('.message-assistant-content').textContent = reponse;
-            // Insérer le nouveau message dans le DOM
-            const messagesContainer = document.querySelector('.messages-container');
-            if (!messagesContainer) {
-                console.log('Le conteneur de messages n\'a pas été trouvé.');
-            } else {
-                messagesContainer.appendChild(tempDiv);
-            }
-        })
-        .catch(error => console.error('Error loading the template:', error));
+function createMessageUserFromTemplate(templateName, messageContent, date) {
+    return new Promise((resolve, reject) => {
+        fetch(`/get_template/${templateName}`)
+            .then(response => response.text())
+            .then(template => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = template;
+                
+                tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
+                tempDiv.querySelector('.message-content-user').innerHTML = formatMessageContent(messageContent);
+                
+                const messagesContainer = document.querySelector('.messages-container');
+                if (!messagesContainer) {
+                    console.log('Le conteneur de messages n\'a pas été trouvé.');
+                    reject('Le conteneur de messages n\'a pas été trouvé.');
+                } else {
+                    messagesContainer.appendChild(tempDiv);
+                    resolve(); // Résoudre la promesse une fois l'opération terminée
+                }
+            })
+            .catch(error => {
+                console.error('Error loading the template:', error);
+                reject(error); // Rejeter la promesse en cas d'erreur
+            });
+    });
 }
 
+function createMessageAssistantFromTemplate(templateName, reponse, date) {
+    return new Promise((resolve, reject) => {
+        fetch(`/get_template/${templateName}`)
+            .then(response => response.text())
+            .then(template => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = template;
+                tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
+                tempDiv.querySelector('.message-assistant-content').innerHTML = formatMessageContent(reponse);
+                
+                const messagesContainer = document.querySelector('.messages-container');
+                if (!messagesContainer) {
+                    console.log('Le conteneur de messages n\'a pas été trouvé.');
+                    reject('Le conteneur de messages n\'a pas été trouvé.');
+                } else {
+                    messagesContainer.appendChild(tempDiv);
+                    resolve(); // Résoudre la promesse une fois l'opération terminée
+                }
+            })
+            .catch(error => {
+                console.error('Error loading the template:', error);
+                reject(error); // Rejeter la promesse en cas d'erreur
+            });
+    });
+}
+
+function formatMessageContent(messageContent) {
+    // Détection et formatage des blocs de code avec l'indication de langage pour highlight.js
+    const codeRegex = /```(\w+)?\n([\s\S]*?)```/g; // Regex pour détecter les blocs de code avec langage facultatif
+
+    return messageContent.replace(codeRegex, function(match, lang, code) {
+        const uniqueId = `code-${Date.now()}`;
+        const languageClass = lang ? `language-${lang}` : 'language-plaintext';
+        return `<div class="code-header">
+                    <span>${lang}</span>
+                    <span>
+                        <button class="flex gap-1 items-center copy-code-button">
+                            <svg class="icon-sm" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.5C10.8954 3.5 10 4.39543 10 5.5H14C14 4.39543 13.1046 3.5 12 3.5ZM8.53513 3.5C9.22675 2.3044 10.5194 1.5 12 1.5C13.4806 1.5 14.7733 2.3044 15.4649 3.5H17.25C18.9069 3.5 20.25 4.84315 20.25 6.5V18.5C20.25 20.1569 19.1569 21.5 17.25 21.5H6.75C5.09315 21.5 3.75 20.1569 3.75 18.5V6.5C3.75 4.84315 5.09315 3.5 6.75 3.5H8.53513ZM8 5.5H6.75C6.19772 5.5 5.75 5.94772 5.75 6.5V18.5C5.75 19.0523 6.19772 19.5 6.75 19.5H17.25C18.0523 19.5 18.25 19.0523 18.25 18.5V6.5C18.25 5.94772 17.8023 5.5 17.25 5.5H16C16 6.60457 15.1046 7.5 147.5H10C8.89543 7.5 8 6.60457 8 5.5Z" fill="currentColor"></path>
+                            </svg>
+                            Copy code
+                        </button>
+                    </span>
+                </div>
+                <pre><code class="${languageClass}">${escapeHTML(code)}</code></pre>`;
+    });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('copy-code-button')) {
+        // Trouvez l'élément <pre><code> le plus proche pour obtenir le texte à copier
+        const codeBlock = event.target.closest('.code-header').nextElementSibling.querySelector('code');
+        const codeToCopy = codeBlock.innerText;
+        navigator.clipboard.writeText(codeToCopy).then(() => {
+            // Affichez une confirmation ici
+            event.target.innerHTML = `<img src="./static/images/saved.png" class="icon-sm" width="24" height="24"></img> Copied!`;
+            setTimeout(() => {
+                event.target.innerHTML = `<svg class="icon-sm" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.5C10.8954 3.5 10 4.39543 10 5.5H14C14 4.39543 13.1046 3.5 12 3.5ZM8.53513 3.5C9.22675 2.3044 10.5194 1.5 12 1.5C13.4806 1.5 14.7733 2.3044 15.4649 3.5H17.25C18.9069 3.5 20.25 4.84315 20.25 6.5V18.5C20.25 20.1569 19.1569 21.5 17.25 21.5H6.75C5.09315 21.5 3.75 20.1569 3.75 18.5V6.5C3.75 4.84315 5.09315 3.5 6.75 3.5H8.53513ZM8 5.5H6.75C6.19772 5.5 5.75 5.94772 5.75 6.5V18.5C5.75 19.0523 6.19772 19.5 6.75 19.5H17.25C18.0523 19.5 18.25 19.0523 18.25 18.5V6.5C18.25 5.94772 17.8023 5.5 17.25 5.5H16C16 6.60457 15.1046 7.5 147.5H10C8.89543 7.5 8 6.60457 8 5.5Z" fill="currentColor"></path>
+                </svg>
+                Copy code`;
+            }, 2000);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+});
+
+  
+
+function changeButtonText(button, originalText) {
+    button.innerHTML = `<svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4.7 4.5 9.3-9"/>
+    </svg> Copied!`; // Ajoutez ici le SVG de votre choix
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 3000); // Revenez au texte original après 2 secondes
+}
+
+
+function escapeHTML(html) {
+    // Cette fonction remplace les caractères spéciaux par leurs entités HTML pour une affichage correct
+    return html
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 function formatDateTime(dateTimeString) {
     // Vérifier si dateTimeString est défini

@@ -87,15 +87,58 @@ def delete_thread(thread_id):
 
 @app.route('/clean_thread/<thread_id>', methods=['POST'])
 def clean_thread(thread_id):
-    # Chemin vers le fichier messages.json dans le dossier du thread
-    json_file_path = os.path.join('Threads', f'{thread_id}', 'messages.jsonl')
+    # Chemin vers le fichier messages.jsonl dans le dossier du thread
+    jsonl_file_path = os.path.join('Threads', f'{thread_id}', 'messages.jsonl')
+    json_file_path = os.path.join('Threads', f'{thread_id}', 'thread.json')
+
     try:
-        # Ouvrir le fichier en mode écriture pour effacer son contenu
-        with open(json_file_path, 'w') as file:
+        # Effacer le contenu de messages.jsonl
+        with open(jsonl_file_path, 'w') as file:
             pass  # Le fichier est maintenant vidé
+
+        # Mettre à jour le champ content dans thread.json
+        if os.path.exists(json_file_path):
+            with open(json_file_path, 'r+', encoding='utf-8') as file:
+                thread_data = json.load(file)
+                thread_data['content'] = "No new message"
+                # Repositionner le curseur au début du fichier avant de réécrire
+                file.seek(0)
+                json.dump(thread_data, file, ensure_ascii=False, indent=4)
+                # Tronquer le fichier au cas où la nouvelle donnée est plus petite que l'ancienne
+                file.truncate()
+
         return jsonify({'message': 'Thread cleaned successfully'}), 200
     except Exception as e:
         return jsonify({'message': f'Error cleaning thread: {str(e)}'}), 500
+
+@app.route('/update_thread/<thread_id>', methods=['POST'])
+def update_thread_title(thread_id):
+    # Le chemin vers le dossier contenant les threads
+    thread_dir = os.path.join('Threads', thread_id)
+    thread_file_path = os.path.join(thread_dir, 'thread.json')
+
+    if not os.path.exists(thread_file_path):
+        return jsonify({'error': 'Thread not found'}), 404
+
+    # Récupération des données envoyées par la requête POST
+    data = request.get_json()
+
+    try:
+        # Chargement du contenu actuel du fichier thread.json
+        with open(thread_file_path, 'r', encoding='utf-8') as file:
+            thread_data = json.load(file)
+
+        # Mise à jour du titre dans les données chargées
+        thread_data['titre'] = data.get('titre', '')
+        thread_data['content'] = data.get('content', '')
+
+        # Réécriture du fichier thread.json avec le titre mis à jour
+        with open(thread_file_path, 'w', encoding='utf-8') as file:
+            json.dump(thread_data, file, ensure_ascii=False, indent=4)
+
+        return jsonify({'message': 'Thread title updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/get_AI_reponse', methods=['POST'])
@@ -106,8 +149,10 @@ async def send_request_model():
     user_message = data_user.get("content", "")
 
     response = client.chat.completions.create(
-        model="/home/t0276771/Bureau/Webapp chatGPT/model/mistral-ins-7b-q4/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+        model="/home/t0276771/Bureau/Hephaistos/model/mistral-ins-7b-q4/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+        max_tokens = 2048,
         messages=[{"role": "user", "content": user_message}],
+
     )
     print(response)
     reponse = response.choices[0].message.content
@@ -118,7 +163,7 @@ async def send_request_model():
     # Chemin vers le fichier messages.jsonl dans le dossier du thread
     base_dir = 'Threads'
     jsonl_file_path = os.path.join(base_dir, f'{thread_id}', 'messages.jsonl')
-
+        
     # Ajouter data_user et data_assistant au fichier messages.jsonl
     with open(jsonl_file_path, 'a', encoding='utf-8') as file:
         file.write(json.dumps(data_user, ensure_ascii=False) + '\n')

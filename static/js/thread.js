@@ -32,8 +32,6 @@ async function load_Threads() {
         // Vérifier si lastThreadId est défini avant d'appeler displayChat
         if (lastThreadId !== null) {
             displayChat(lastThreadId); // Appeler displayChat pour le dernier thread après la fin de la boucle
-        } else {
-            console.log('Aucun thread à afficher.');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -117,38 +115,36 @@ function addClickListenerToThread(threadElement, data) {
     });
 }
 
-function displayChat(threadId) {
-    const div = document.getElementById('messages-container'); // Utilisez l'ID correct de votre div
-    div.innerHTML = ''; // Videz la div au début pour s'assurer qu'elle est toujours nettoyée
+async function displayChat(threadId) {
+    const div = document.getElementById('messages-container');
+    div.innerHTML = ''; // Videz la div au début
 
-    fetch(`/get_thread_by/${threadId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        const response = await fetch(`/get_thread_by/${threadId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const messages = await response.json();
+
+        if (messages.length === 0) {
+            console.log("Aucun message à afficher.");
+        } else {
+            for (const msg of messages) {
+                if (msg["role"] === "user") {
+                    await createMessageUserFromTemplate("message-user", msg["content"], msg["date_update"]);
+                } else if (msg["role"] === "assistant") {
+                    await createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]);
+                }
+                await hljs.highlightAll();
             }
-            return response.json();
-        })
-        .then(messages => {
-            if (messages.length === 0) {
-                // Si la réponse est vide, la div a déjà été vidée plus haut
-                // Vous pouvez ajouter ici un message par défaut si nécessaire
-                console.log("Aucun message à afficher.");
-            } else {
-                messages.forEach(msg => {
-                    if(msg["role"] === "user"){
-                        createMessageUserFromTemplate("message-user", msg["content"], msg["date_update"]);
-                    }else if(msg["role"] === "assistant"){
-                        createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]);
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors du chargement des messages:', error);
-            // Vous pourriez aussi afficher un message d'erreur dans la div ici, si désiré
-            div.innerHTML = 'Erreur lors du chargement des messages.'; // Exemple d'un message d'erreur affiché
-        });
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des messages:', error);
+        div.innerHTML = 'Erreur lors du chargement des messages.';
+    }
 }
+
+
 
 
 function deleteThread(threadId) {
@@ -162,7 +158,6 @@ function deleteThread(threadId) {
         return response.json();
     })
     .then(data => {
-        console.log(data);
         load_Threads(); // Recharger les threads après la suppression
     })
     .catch(error => console.error('Error:', error));
@@ -179,7 +174,6 @@ function cleanThread(threadId) {
         return response.json();
     })
     .then(data => {
-        console.log(data);
         load_Threads(); // Recharger les threads après la suppression
     })
     .catch(error => console.error('Error:', error));
