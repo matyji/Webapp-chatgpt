@@ -67,6 +67,66 @@
 .message {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     position: relative;
+}
+
+.code-block {
+    background-color: #282c34; /* Couleur de fond foncée */
+    color: #abb2bf; /* Couleur de texte claire */
+    border-radius: 6px; /* Coins arrondis */
+    padding: 16px; /* Espacement interne */
+    margin: 12px 0; /* Marges extérieures */
+    overflow-x: auto; /* Défilement horizontal pour les longs blocs de code */
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace; /* Police monospace */
+    font-size: 14px; /* Taille de la police */
+    line-height: 1.5; /* Hauteur de ligne */
+}
+
+.code-block code {
+    display: block; /* Afficher comme un bloc pour prendre toute la largeur */
+}
+
+.code-header {
+    margin-top: 2%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-color: #605d5c; /* Remplacez par la couleur de fond désirée */
+    padding: 0.2rem 1rem;
+    height: auto;
+    font-size: 0.75rem;
+    font-family: sans-serif;
+    justify-content: space-between;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+    margin-bottom: -1px; /* Aligner avec le bloc de code en dessous si nécessaire */
+}
+
+.code-header span:first-child {
+    color: white; /* Remplacez par la couleur de texte désirée */
+}
+
+.code-header button {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white; /* Remplacez par la couleur de texte désirée */
+}
+
+.code-header .icon-sm {
+    width: 1.2rem; /* 24px */
+    height: 1.2rem; /* 24px */
+    fill: currentColor;
+    
+}
+
+pre{
+    margin-top: 0;
 }
