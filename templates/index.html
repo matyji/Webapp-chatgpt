@@ -23,18 +23,7 @@
     </div>
   </div>
   <div class="icones border-top supp-border-right">
-    <div class="container-icon">
-      <img src="/static/images/ai.png" alt="logo" width="38" height="38">
-    </div>
-    <div class="container-icon2">
-      <button class="thread-button" data-state="closed">
-        <svg class="thread-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
-        </svg>
-        <div class="overlay"></div>
-      </button>
-    </div>
-    
+    {% include 'icones.html' %}
   </div>
   <div class="Threads border border-left" id="Threads">
   </div>
@@ -45,7 +34,7 @@
     {% include 'Thread_settings.html' %}
   </div>
   <div class="footer border-left">
-    <div class="footer-section"></div>
+    {% include 'footer.html' %}
   </div>
 </div>
 {% include 'modal.html' %}
