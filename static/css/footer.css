@@ -1,0 +1,76 @@
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 64px; /* Adjusté par rapport à 'left-16' pour correspondre à une valeur fixe */
+    right: 0; /* Utilisé à la place de 'w-[calc(100%-64px)]' pour une approche plus compatible */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px; /* 'h-12' converti en pixels */
+    background-color: black; /* 'bg-background/80' adapté pour une semi-transparence */
+    padding: 0 12px; /* 'px-3' converti en pixels */
+}
+
+.left-section, .right-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.875rem; /* 'gap-x-2' converti en pixels */
+    width: 22%;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: #333; /* 'badge-secondary' avec une couleur générique */
+    border-radius: 4px; /* 'rounded-md' */
+    font-weight: medium;
+    cursor: pointer;
+    opacity: 1;
+}
+
+.shortcut {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    background-color: none; /* 'bg-secondary' avec une couleur générique */
+    color: #A8A29E; /* 'text-muted-foreground' avec une couleur générique */
+    border-radius: 9999px; /* 'rounded-full' */
+    padding: 2px 4px;
+    font-size: 12px; /* 'text-xs' */
+    font-weight: bold;
+}
+
+.system-info, .version-info {
+    display: flex;
+    align-items: center;
+    font-size: 12px; /* 'text-xs' */
+    color: #A8A29E; /* 'text-muted-foreground' */
+}
+
+.system-info span{
+    color: white; /* 'text-muted-foreground' */
+}
+
+.system-info span {
+    font-weight: bold; /* 'font-semibold' */
+}
+
+.links{
+    margin-left: 5%;
+}
+
+.links a {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.links svg {
+    height: 20px;
+    width: 20px; /* Tailles ajustées pour correspondre à l'exemple donné */
+    fill: white; /* Utilise la couleur du texte pour les SVG */
+}

@@ -134,10 +134,10 @@
   display: flex;
   justify-content: center;
   padding: 0.5rem; /* p-2 équivaut à un padding de 0.5rem de tous les côtés */
-  height: 4rem;
+  height: 2.7rem;
 }
 
-.thread-button {
+.icon-button {
   position: relative;
   width: 100%;
   display: flex;
@@ -149,18 +149,24 @@
   padding: 0;
 }
 
-.thread-icon {
+.icon-svg {
   z-index: 10; /* Assurez-vous que l'icône est au-dessus de l'overlay */
   color: #6c757d; /* Remplacer par la couleur exacte pour 'text-muted-foreground' */
 }
 
 .overlay {
-  position: absolute;
   inset: 0;
   left: 0;
-  height: 100%;
-  width: 100%;
   background-color: #333;
   border-radius: 0.5rem;
   opacity: 1;
+}
+
+.container-icones{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
 }
