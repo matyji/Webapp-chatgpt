@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/t0276771/Bureau/Webapp chatGPT/env"
+set -gx VIRTUAL_ENV "/home/t0276771/Bureau/Hephaistos/env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

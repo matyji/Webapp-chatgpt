@@ -13,7 +13,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Vérifie l'état initial au chargement de la page
     toggleButtonState();
+
+    get_model_status();
 });
+
+
+function get_model_status(){
+    fetch('/get_model_status')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if(data["model_loaded"] == false){
+            setModeleInactive();
+        }else{
+            setModeleActive();
+        }
+    })
+    .catch(error => {
+        console.error("Erreur lors de la requête:", error);
+    });
+}
 
 function sendMessage(valeurInput) {
     let sendButton = document.getElementById('send-button');
@@ -46,32 +69,22 @@ document.getElementById('message-input').addEventListener('keydown', function(ev
     }
 });
 
-function envoyerRequete(userInput) {
-    const threadID = document.getElementById("thread-id").textContent;
-    let date_update = getCurrentDateTimeFormatted();
-    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
-    fetch('/envoyerRequete', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data_user),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Réponse reçue:', data);
-        reponse = data["content"]
-        createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update'])
-    })
-    .catch((error) => {
-        console.error('Erreur:', error);
-    });
-}
 
 function get_AI_reponse(userInput) {
     const threadID = document.getElementById("thread-id").textContent;
     let date_update = getCurrentDateTimeFormatted();
     let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
+    let model_status = document.querySelector(".status-text").style.color;
+    if(model_status == "rgb(220, 20, 60)"){
+        loadModel().then(()=>{
+            send_request(data_user, threadID);
+        });
+    }else{
+        send_request(data_user, threadID);
+    }
+}
+
+function send_request(data_user, threadID){
     fetch('/get_AI_reponse', {
         method: 'POST',
         headers: {
@@ -86,14 +99,16 @@ function get_AI_reponse(userInput) {
         return createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update']);
     })
     .then(() => {
-        setUpCopyButtons();
         // Appeler hljs.highlightAll() seulement après que les messages sont dans le DOM
         hljs.highlightAll();
+        let title = document.getElementById("Thread-title").textContent;
+        updateThread_attribute(threadID, title, reponse);
     })
     .catch((error) => {
         console.error('Erreur:', error);
     });
 }
+
 
 function createMessageUserFromTemplate(templateName, messageContent, date) {
     return new Promise((resolve, reject) => {
@@ -189,6 +204,66 @@ document.addEventListener('click', function(event) {
         });
     }
 });
+
+
+document.getElementById('shortcut').addEventListener('click', loadModel);
+
+async function loadModel() {
+    try {
+        const response = await fetch('/load_model');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data["message"] == "Modèle chargé avec succès") {
+            document.querySelector(".notification-message").textContent = "Model mistral-7b has been started.";
+            document.querySelector(".notification").style.display = 'flex'; // Affiche la notification
+            setModeleActive();
+            // Masque la notification après 3 secondes
+            setTimeout(() => {
+                document.querySelector(".notification").style.display = 'none';
+            }, 3000);
+        }
+        return data; // Retourne les données pour les chaînages ultérieurs
+    } catch (error) {
+        console.error("Erreur lors de la requête:", error);
+        throw error; // Relance l'erreur pour le chaînage de promesses
+    }
+}
+
+
+function setModeleActive(){
+    document.querySelector(".status-text").style.color = "#2f855a";
+    document.querySelector(".status-dot").style.backgroundColor = "#48BB78";
+}
+
+function setModeleInactive(){
+    document.querySelector(".status-text").style.color = "#DC143C";
+    document.querySelector(".status-dot").style.backgroundColor = "#ff3c3c";
+}
+
+function updateThread_attribute(threadID, newTitle, content) {
+    fetch(`/update_thread/${threadID}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({titre: newTitle, content: content})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        load_Threads();
+        // Vous pouvez ici mettre à jour l'interface utilisateur pour refléter le changement de titre
+    })
+    .catch((error) => {
+        console.error('Erreur:', error);
+    });
+}
 
   
 

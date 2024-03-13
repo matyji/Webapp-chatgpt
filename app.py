@@ -6,14 +6,10 @@ import os
 import json
 from datetime import datetime
 import shutil
+import requests
+from Thread import Thread
 
 app = Flask(__name__)
-
-# Initialisez votre client AsyncOpenAI ici
-client = OpenAI(
-    base_url="http://localhost:3928/v1/",
-    api_key="sk-xxx"
-)
 
 @app.route('/')
 def index():
@@ -143,27 +139,61 @@ def update_thread_title(thread_id):
 
 @app.route('/get_AI_reponse', methods=['POST'])
 async def send_request_model():
-    # Exemple de récupération de données de la requête, ajustez selon vos besoins
+    # Initialisez votre client AsyncOpenAI ici
+    client = OpenAI(
+        base_url="http://localhost:3928/v1/",
+        api_key="sk-xxx"
+    )
+
     data_user = request.json
     thread_id = data_user.get("thread_id", "")
     user_message = data_user.get("content", "")
 
-    response = client.chat.completions.create(
-        model="/home/t0276771/Bureau/Hephaistos/model/mistral-ins-7b-q4/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-        max_tokens = 2048,
-        messages=[{"role": "user", "content": user_message}],
+    # Chemin vers le fichier messages.jsonl dans le dossier du thread
+    jsonl_file_path = os.path.join('Threads', thread_id, 'messages.jsonl')
 
+    # Récupérer l'historique des messages et filtrer pour n'obtenir que {"role": ..., "content": ...}
+    messages_history = []
+    try:
+        with open(jsonl_file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                msg = json.loads(line)
+                # Conserver uniquement les champs "role" et "content"
+                filtered_msg = {"role": msg["role"], "content": msg["content"]}
+                messages_history.append(filtered_msg)
+                
+        # Ne garder que les 6 derniers messages
+        # messages_history = messages_history[-6:]
+
+    except FileNotFoundError:
+        print("Le fichier messages.jsonl n'a pas été trouvé.")
+
+    
+    # Ajouter le dernier message de l'utilisateur à la fin de l'historique
+    messages_history.append({"role": "user", "content": user_message})
+
+    # Envoyer la requête au modèle avec l'historique des messages comme contexte
+    response = client.chat.completions.create(
+        model="/chemin/vers/votre/modele",
+        max_tokens=2048,
+        messages=messages_history
     )
+
+    # Traiter la réponse de l'IA
     print(response)
     reponse = response.choices[0].message.content
-    print(reponse)
     current_date = datetime.now() 
     date_update = current_date.strftime("%d/%m/%Y %H:%M")
-    data_assistant = {"thread_id": thread_id,"role":"assistant","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": reponse}
-    # Chemin vers le fichier messages.jsonl dans le dossier du thread
-    base_dir = 'Threads'
-    jsonl_file_path = os.path.join(base_dir, f'{thread_id}', 'messages.jsonl')
-        
+    data_assistant = {
+        "thread_id": thread_id,
+        "role": "assistant",
+        "date_creation": date_update,
+        "date_update": date_update,
+        "object": "thread.message",
+        "type": "text",
+        "content": reponse
+    }
+
     # Ajouter data_user et data_assistant au fichier messages.jsonl
     with open(jsonl_file_path, 'a', encoding='utf-8') as file:
         file.write(json.dumps(data_user, ensure_ascii=False) + '\n')
@@ -171,6 +201,39 @@ async def send_request_model():
 
     return jsonify(data_assistant)
 
+
+@app.route('/load_model')
+def load_model():
+    # Paramètres ou données à envoyer dans la requête POST au service / modèle
+    data = {
+        "llama_model_path": "/home/t0276771/Bureau/Hephaistos/model/mistral-ins-7b-q4/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+        "ctx_len": 4096,
+        "ngl": 100,
+    }
+    headers = {'Content-Type': 'application/json'}
+
+    # URL du service ou du modèle à charger (exemple)
+    model_service_url = 'http://localhost:3928/inferences/llamacpp/loadmodel'
+
+    response = requests.post(model_service_url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        return jsonify({"message": "Modèle chargé avec succès", "response": response.json()})
+    else:
+        return jsonify({"error": "Impossible de charger le modèle"}), response.status_code
+
+
+@app.route('/get_model_status')
+def get_model_status():
+    # URL du service ou du modèle à charger (exemple)
+    model_service_url = 'http://localhost:3928/inferences/llamacpp/modelstatus'
+
+    response = requests.get(model_service_url)
+
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({"error": "Impossible d'obtenir le status du modèle"}), response.status_code
 
 if __name__ == '__main__':
     app.run(app, debug=True)

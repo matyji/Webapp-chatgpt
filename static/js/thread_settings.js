@@ -25,26 +25,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function updateThread_attribute(threadID, newTitle, content) {
-    fetch(`/update_thread/${threadID}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({titre: newTitle, content: content})
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        load_Threads();
-        // Vous pouvez ici mettre à jour l'interface utilisateur pour refléter le changement de titre
-    })
-    .catch((error) => {
-        console.error('Erreur:', error);
-    });
-}
-
