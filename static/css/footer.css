@@ -30,6 +30,27 @@
     opacity: 1;
 }
 
+.badge2 {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem; /* Ajustez les espacements selon vos préférences */
+    border-radius: 1em; /* Pour des bords arrondis sur le badge */
+    background-color: #e6ffed; /* Une couleur de fond claire pour le succès */
+    font-weight: bold; /* Texte en gras */
+    font-family: sans-serif; /* Choisissez la police de caractère que vous préférez */
+}
+
+.status-dot {
+    height: 8px; /* Hauteur du point de statut */
+    width: 8px; /* Largeur du point de statut */
+    border-radius: 50%; /* Rendre le point circulaire */
+    background-color: #ff3c3c; /* Couleur verte pour indiquer un état actif */
+    margin-left: 0.5em; /* Espace entre le point de statut et le texte */
+}
+.status-text{
+    color: #DC143C; /* Couleur de texte correspondant au succès (vert foncé) */
+}
+
 .shortcut {
     display: inline-flex;
     align-items: center;

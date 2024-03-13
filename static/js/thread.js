@@ -159,6 +159,13 @@ function deleteThread(threadId) {
     })
     .then(data => {
         load_Threads(); // Recharger les threads après la suppression
+        document.querySelector(".notification-message").textContent = `Thread ${threadId} successfully deleted.`;
+        document.querySelector(".notification").style.display = 'flex'; // Affiche la notification
+        setModeleActive();
+        // Masque la notification après 3 secondes
+        setTimeout(() => {
+            document.querySelector(".notification").style.display = 'none';
+        }, 3000);
     })
     .catch(error => console.error('Error:', error));
 }

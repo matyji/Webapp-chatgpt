@@ -25,3 +25,12 @@ class Thread:
         # Écriture de self.json dans thread.json
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(self.json, f, ensure_ascii=False, indent=4)
+
+    
+    def create_thread_messages(self):
+        try:
+            jsonl_file_path = os.path.join(self.path, 'messages.jsonl')
+            with open(jsonl_file_path, 'w', encoding='utf-8') as file:
+                pass  # Pas besoin d'écrire quoi que ce soit, juste créer le fichier
+        except Exception as e:
+            print(f"Erreur lors de la création du fichier : {e}")

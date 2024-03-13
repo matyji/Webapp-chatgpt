@@ -170,3 +170,64 @@
   height: 100%;
   width: 100%;
 }
+
+.notification {
+  background-color: white; /* Couleur verte pour le succès */
+  color: black;
+  padding: 8px 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère pour le relief */
+  position: fixed; /* Pour placer la notification en haut à droite */
+  right: 10px;
+  top: 10px;
+  z-index: 1000; /* S'assurer que la notification reste en haut */
+}
+
+.notification-icon {
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 12px;
+  background-color: #48BB78; /* Couleur de fond du cercle autour du SVG */
+  border-radius: 50%; /* Cercle complet */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  width: 26px; /* Largeur du cercle */
+  height: 26px; /* Hauteur du cercle */
+  line-height: 26px;
+}
+
+.notification-content {
+  flex-grow: 1; /* Permet à la partie texte de prendre tout l'espace disponible */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.notification-title {
+  font-size: 16px;
+  margin: 0;
+  font-weight: bold;
+}
+
+.notification-message {
+  font-size: 14px;
+  margin: 0;
+}
+
+.notification-title, .notification-message {
+  /* Votre code existant reste inchangé */
+  line-height: 1.2; /* Ajustez au besoin pour l'alignement vertical */
+}
+
+.notification-close {
+  background: transparent;
+  border: none;
+  color: black;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: start;
+}
