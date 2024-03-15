@@ -77,14 +77,14 @@ function get_AI_reponse(userInput) {
     let model_status = document.querySelector(".status-text").style.color;
     if(model_status == "rgb(220, 20, 60)"){
         loadModel().then(()=>{
-            send_request(data_user, threadID);
+            send_request(data_user, threadID, date_update );
         });
     }else{
-        send_request(data_user, threadID);
+        send_request(data_user, threadID, date_update);
     }
 }
 
-function send_request(data_user, threadID){
+function send_request(data_user, threadID, date){
     fetch('/get_AI_reponse', {
         method: 'POST',
         headers: {
@@ -102,7 +102,12 @@ function send_request(data_user, threadID){
         // Appeler hljs.highlightAll() seulement après que les messages sont dans le DOM
         hljs.highlightAll();
         let title = document.getElementById("Thread-title").textContent;
-        updateThread_attribute(threadID, title, reponse);
+        updateThread_attribute(threadID, title, reponse, date);
+    })
+    .then(() =>{
+        window.onload = function() {
+            scrollToBottomMessage();
+          };
     })
     .catch((error) => {
         console.error('Erreur:', error);
@@ -119,7 +124,7 @@ function createMessageUserFromTemplate(templateName, messageContent, date) {
                 tempDiv.innerHTML = template;
                 
                 tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
-                tempDiv.querySelector('.message-content-user').innerHTML = formatMessageContent(messageContent);
+                tempDiv.querySelector('.message-content-user').innerHTML = messageContent;
                 
                 const messagesContainer = document.querySelector('.messages-container');
                 if (!messagesContainer) {
@@ -231,6 +236,10 @@ async function loadModel() {
     }
 }
 
+function scrollToBottomMessage() {
+    var div = document.querySelector('.messages-container');
+    div.scrollTop = div.scrollHeight;
+  }
 
 function setModeleActive(){
     document.querySelector(".status-text").style.color = "#2f855a";
@@ -242,13 +251,13 @@ function setModeleInactive(){
     document.querySelector(".status-dot").style.backgroundColor = "#ff3c3c";
 }
 
-function updateThread_attribute(threadID, newTitle, content) {
+function updateThread_attribute(threadID, newTitle, content, date) {
     fetch(`/update_thread/${threadID}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({titre: newTitle, content: content})
+        body: JSON.stringify({titre: newTitle, content: content, date_update: date})
     })
     .then(response => {
         if (!response.ok) {

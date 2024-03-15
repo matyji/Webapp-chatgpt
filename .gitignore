@@ -3,4 +3,4 @@ env/*
 model/mistral-ins-7b-q4/*
 uploads/*
 Threads/Thread*
-
+nitro/*

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, stream_with_context, Response, render_template
 import asyncio
 from openai import OpenAI
 import json
@@ -8,6 +8,7 @@ from datetime import datetime
 import shutil
 import requests
 from Thread import Thread
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -108,7 +109,7 @@ def clean_thread(thread_id):
         return jsonify({'message': f'Error cleaning thread: {str(e)}'}), 500
 
 @app.route('/update_thread/<thread_id>', methods=['POST'])
-def update_thread_title(thread_id):
+def update_thread(thread_id):
     # Le chemin vers le dossier contenant les threads
     thread_dir = os.path.join('Threads', thread_id)
     thread_file_path = os.path.join(thread_dir, 'thread.json')
@@ -127,6 +128,8 @@ def update_thread_title(thread_id):
         # Mise à jour du titre dans les données chargées
         thread_data['titre'] = data.get('titre', '')
         thread_data['content'] = data.get('content', '')
+        thread_data['date_update'] = data.get('date_update', '')
+
 
         # Réécriture du fichier thread.json avec le titre mis à jour
         with open(thread_file_path, 'w', encoding='utf-8') as file:
@@ -148,6 +151,7 @@ async def send_request_model():
     data_user = request.json
     thread_id = data_user.get("thread_id", "")
     user_message = data_user.get("content", "")
+    prompt = "Tu es un assistant IA réponds moi uniquement en Francais:" + user_message
 
     # Chemin vers le fichier messages.jsonl dans le dossier du thread
     jsonl_file_path = os.path.join('Threads', thread_id, 'messages.jsonl')
@@ -170,13 +174,13 @@ async def send_request_model():
 
     
     # Ajouter le dernier message de l'utilisateur à la fin de l'historique
-    messages_history.append({"role": "user", "content": user_message})
+    messages_history.append({"role": "user", "content":  prompt})
 
     # Envoyer la requête au modèle avec l'historique des messages comme contexte
     response = client.chat.completions.create(
         model="/chemin/vers/votre/modele",
         max_tokens=2048,
-        messages=messages_history
+        messages=messages_history,
     )
 
     # Traiter la réponse de l'IA
