@@ -136,6 +136,7 @@ async function displayChat(threadId) {
                     await createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]);
                 }
                 await hljs.highlightAll();
+                scrollToBottomMessage();
             }
         }
     } catch (error) {
@@ -166,6 +167,7 @@ function deleteThread(threadId) {
         setTimeout(() => {
             document.querySelector(".notification").style.display = 'none';
         }, 3000);
+        document.querySelector(".messages-container").innerHTML = '';
     })
     .catch(error => console.error('Error:', error));
 }

@@ -34,3 +34,6 @@ class Thread:
                 pass  # Pas besoin d'écrire quoi que ce soit, juste créer le fichier
         except Exception as e:
             print(f"Erreur lors de la création du fichier : {e}")
+
+    def get_thread_json(self):
+        return self.json

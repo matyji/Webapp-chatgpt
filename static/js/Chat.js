@@ -1,15 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     var textarea = document.getElementById('message-input');
     var sendButton = document.getElementById('send-button');
+    var threadsContainer = document.querySelector('.Threads'); // Assurez-vous que la classe est correcte
 
     // Fonction pour vérifier le contenu du textarea et activer/désactiver le bouton
     function toggleButtonState() {
-        // Si le textarea n'est pas vide, le bouton est activé, sinon il est désactivé
-        sendButton.disabled = !textarea.value.trim();
+        // Vérifie si le textarea n'est pas vide et si la div Threads contient quelque chose
+        var isTextareaNotEmpty = textarea.value.trim().length > 0;
+        var doesThreadsContainerHaveContent = threadsContainer.innerHTML.trim().length > 0;
+        
+        // Le bouton est activé si les deux conditions sont vraies, sinon il est désactivé
+        sendButton.disabled = !(isTextareaNotEmpty && doesThreadsContainerHaveContent);
     }
 
     // Écoute les événements 'input' sur le textarea
     textarea.addEventListener('input', toggleButtonState);
+
+    // Vérifie également l'état quand le contenu de la div Threads change
+    // Ceci est un exemple simple qui suppose que le contenu de Threads change rarement.
+    // Pour une application plus dynamique, vous pourriez devoir observer les changements dans la div Threads
+    if (threadsContainer) {
+        new MutationObserver(toggleButtonState).observe(threadsContainer, { childList: true, subtree: true });
+    }
 
     // Vérifie l'état initial au chargement de la page
     toggleButtonState();
@@ -38,7 +50,7 @@ function get_model_status(){
     });
 }
 
-function sendMessage(valeurInput) {
+async function sendMessage(valeurInput) {
     let sendButton = document.getElementById('send-button');
 
     // Vérifie si le bouton est désactivé
@@ -48,12 +60,88 @@ function sendMessage(valeurInput) {
         return;
     }else{
         let date = getCurrentDateTimeFormatted();
-        createMessageUserFromTemplate("message-user", valeurInput, date);
+        await createMessageUserFromTemplate("message-user", valeurInput, date);
+        await createMessageAssistantFromTemplate("message-assistant", "", date);
         get_AI_reponse(valeurInput);
 
     }
 }
 
+$(document).ready(function(){
+    var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port);
+    socket.on('connect', function() {
+        console.log('Websocket connecté');
+    });
+
+    socket.on('response', function(msg) {
+        window.onload = function() {
+            scrollToBottomMessage();
+          };
+        // Trouver la dernière div .message.assistant-message dans .messages-container
+        var lastAssistantMessage = $('.messages-container .message.assistant-message').last();
+    
+        // À l'intérieur de cette div, trouver .message-content-assistant
+        var messageContentAssistant = lastAssistantMessage.find('.message-assistant-content');
+    
+        // Vérifier si le message contient une propriété 'data' ou ajuster selon la structure de 'msg'
+        var messageText = msg.data;
+    
+        // Ajouter le texte du message à l'élément .message-content-assistant
+        // Assurez-vous que messageContentAssistant n'est pas vide et existe dans le DOM
+        if(messageContentAssistant.length > 0) {
+            // Si .message-content-assistant est vide, initialisez-le avec le message
+            // Sinon, ajoutez le message à la suite
+            if(messageContentAssistant.html().trim() === "") {
+                messageContentAssistant.html(messageText);
+            } else {
+                messageContentAssistant.append(messageText);
+                scrollToBottomMessage();
+            }
+        } else {
+            console.log("Élément .message-content-assistant introuvable.");
+        }
+    });
+});
+
+function get_AI_reponse(userInput) {
+    const threadID = document.getElementById("thread-id").textContent;
+    let date_update = getCurrentDateTimeFormatted();
+    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
+    let model_status = document.querySelector(".status-text").style.color;
+    if(model_status == "rgb(220, 20, 60)"){
+        loadModel().then(()=>{
+            $.ajax({
+                type: "POST",
+                url: "/get_AI_reponse",
+                contentType: "application/json",
+                data: JSON.stringify(data_user),
+                dataType: "json",
+                success: function(response) {
+                    console.log('Prompt envoyé avec succès');
+                    // Vous pouvez également choisir d'initialiser l'interface ici si nécessaire
+                },
+                error: function(error) {
+                    console.log('Erreur lors de l\'envoi du prompt');
+                }
+            })
+        });
+    }else{
+        $.ajax({
+            type: "POST",
+            url: "/get_AI_reponse",
+            contentType: "application/json",
+            data: JSON.stringify(data_user),
+            dataType: "json",
+            success: function(response) {
+                console.log('Prompt envoyé avec succès');
+                // Vous pouvez également choisir d'initialiser l'interface ici si nécessaire
+            },
+            error: function(error) {
+                console.log('Erreur lors de l\'envoi du prompt');
+            }
+        })
+    }
+}
 
 document.getElementById('send-button').addEventListener('click', sendMessage);
 document.getElementById('message-input').addEventListener('keydown', function(event) {
@@ -69,47 +157,6 @@ document.getElementById('message-input').addEventListener('keydown', function(ev
     }
 });
 
-
-function get_AI_reponse(userInput) {
-    const threadID = document.getElementById("thread-id").textContent;
-    let date_update = getCurrentDateTimeFormatted();
-    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
-    let model_status = document.querySelector(".status-text").style.color;
-    if(model_status == "rgb(220, 20, 60)"){
-        loadModel().then(()=>{
-            send_request(data_user, threadID);
-        });
-    }else{
-        send_request(data_user, threadID);
-    }
-}
-
-function send_request(data_user, threadID){
-    fetch('/get_AI_reponse', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data_user),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Réponse reçue:', data);
-        reponse = data["content"]
-        return createMessageAssistantFromTemplate("message-assistant", reponse, data['date_update']);
-    })
-    .then(() => {
-        // Appeler hljs.highlightAll() seulement après que les messages sont dans le DOM
-        hljs.highlightAll();
-        let title = document.getElementById("Thread-title").textContent;
-        updateThread_attribute(threadID, title, reponse);
-    })
-    .catch((error) => {
-        console.error('Erreur:', error);
-    });
-}
-
-
 function createMessageUserFromTemplate(templateName, messageContent, date) {
     return new Promise((resolve, reject) => {
         fetch(`/get_template/${templateName}`)
@@ -119,7 +166,7 @@ function createMessageUserFromTemplate(templateName, messageContent, date) {
                 tempDiv.innerHTML = template;
                 
                 tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
-                tempDiv.querySelector('.message-content-user').innerHTML = formatMessageContent(messageContent);
+                tempDiv.querySelector('.message-content-user').innerHTML = messageContent;
                 
                 const messagesContainer = document.querySelector('.messages-container');
                 if (!messagesContainer) {
@@ -137,7 +184,8 @@ function createMessageUserFromTemplate(templateName, messageContent, date) {
     });
 }
 
-function createMessageAssistantFromTemplate(templateName, reponse, date) {
+function createMessageAssistantFromTemplate(templateName,content, date) {
+    console.log(date);
     return new Promise((resolve, reject) => {
         fetch(`/get_template/${templateName}`)
             .then(response => response.text())
@@ -145,7 +193,7 @@ function createMessageAssistantFromTemplate(templateName, reponse, date) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = template;
                 tempDiv.querySelector('.timestamp').textContent = formatDateTime(date);
-                tempDiv.querySelector('.message-assistant-content').innerHTML = formatMessageContent(reponse);
+                tempDiv.querySelector('.message-assistant-content').innerHTML = formatMessageContent(content);
                 
                 const messagesContainer = document.querySelector('.messages-container');
                 if (!messagesContainer) {
@@ -231,6 +279,10 @@ async function loadModel() {
     }
 }
 
+function scrollToBottomMessage() {
+    var div = document.querySelector('.messages-container');
+    div.scrollTop = div.scrollHeight;
+}
 
 function setModeleActive(){
     document.querySelector(".status-text").style.color = "#2f855a";
@@ -242,13 +294,13 @@ function setModeleInactive(){
     document.querySelector(".status-dot").style.backgroundColor = "#ff3c3c";
 }
 
-function updateThread_attribute(threadID, newTitle, content) {
+function updateThread_attribute(threadID, newTitle, content, date) {
     fetch(`/update_thread/${threadID}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({titre: newTitle, content: content})
+        body: JSON.stringify({titre: newTitle, content: content, date_update: date})
     })
     .then(response => {
         if (!response.ok) {
