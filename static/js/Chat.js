@@ -96,12 +96,35 @@ $(document).ready(function(){
             } else {
                 messageContentAssistant.append(messageText);
                 scrollToBottomMessage();
+                processCodeBlocks(messageContentAssistant);
+                hljs.highlightAll();
             }
         } else {
             console.log("Élément .message-content-assistant introuvable.");
         }
     });
 });
+
+function processCodeBlocks(container) {
+    let html = container.html();
+
+    // Étendu regex pour capturer facultativement le langage spécifié après les ```
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    
+    html = html.replace(codeBlockRegex, function(match, lang, code) {
+        const languageClass = lang ? `language-${lang}` : 'language-plaintext';
+        return `<div class="code-header">
+                    <span>${lang || 'Code'}</span>
+                    <span>
+                        <button class="flex gap-1 items-center copy-code-button">Copy code</button>
+                    </span>
+                </div>
+                <pre><code class="${languageClass}">${escapeHTML(code)}</code></pre>`;
+    });
+
+    // Mettre à jour le contenu de la div avec le nouveau HTML
+    container.html(html);
+}
 
 function get_AI_reponse(userInput) {
     const threadID = document.getElementById("thread-id").textContent;
