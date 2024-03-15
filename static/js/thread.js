@@ -136,7 +136,7 @@ async function displayChat(threadId) {
                     await createMessageAssistantFromTemplate("message-assistant", msg["content"], msg["date_update"]);
                 }
                 await hljs.highlightAll();
-                await scrollToBottomMessage();
+                scrollToBottomMessage();
             }
         }
     } catch (error) {

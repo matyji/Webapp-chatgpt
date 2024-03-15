@@ -8,9 +8,10 @@ from datetime import datetime
 import shutil
 import requests
 from Thread import Thread
-from threading import Thread
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 @app.route('/')
 def index():
@@ -64,9 +65,9 @@ def get_thread_by(thread_id):
 
 @app.route('/new_Thread', methods=['GET'])
 def new_thread():
-    new_thread = Thread()  # Instancier la classe Thread, cela crée un nouveau dossier
+    new_thread = Thread()  # Instancier la classe Thread
+    return jsonify(new_thread.get_thread_json())  # Utiliser get_thread_json pour obtenir les informations du thread en format JSON
 
-    return jsonify(new_thread.json)
 
 
 @app.route('/delete_thread/<thread_id>', methods=['DELETE'])
@@ -142,11 +143,6 @@ def update_thread(thread_id):
 
 @app.route('/get_AI_reponse', methods=['POST'])
 async def send_request_model():
-    # Initialisez votre client AsyncOpenAI ici
-    client = OpenAI(
-        base_url="http://localhost:3928/v1/",
-        api_key="sk-xxx"
-    )
 
     data_user = request.json
     thread_id = data_user.get("thread_id", "")
@@ -177,15 +173,9 @@ async def send_request_model():
     messages_history.append({"role": "user", "content":  prompt})
 
     # Envoyer la requête au modèle avec l'historique des messages comme contexte
-    response = client.chat.completions.create(
-        model="/chemin/vers/votre/modele",
-        max_tokens=2048,
-        messages=messages_history,
-    )
+    complete_reponse = generate_reponse(messages_history)
 
     # Traiter la réponse de l'IA
-    print(response)
-    reponse = response.choices[0].message.content
     current_date = datetime.now() 
     date_update = current_date.strftime("%d/%m/%Y %H:%M")
     data_assistant = {
@@ -195,7 +185,7 @@ async def send_request_model():
         "date_update": date_update,
         "object": "thread.message",
         "type": "text",
-        "content": reponse
+        "content": complete_reponse
     }
 
     # Ajouter data_user et data_assistant au fichier messages.jsonl
@@ -204,6 +194,26 @@ async def send_request_model():
         file.write(json.dumps(data_assistant, ensure_ascii=False) + '\n')
 
     return jsonify(data_assistant)
+
+def generate_reponse(messages_history):
+        # Initialisez votre client AsyncOpenAI ici
+    client = OpenAI(
+        base_url="http://localhost:3928/v1/",
+        api_key="sk-xxx"
+    )
+    
+    response = client.chat.completions.create(
+        model="/chemin/vers/votre/modele",
+        max_tokens=2048,
+        messages=messages_history,
+        stream = True
+    )
+    complete_reponse = ""
+    for chunk in response:
+        reponse = chunk.choices[0].delta.content if chunk.choices[0].delta.content else ""
+        socketio.emit('response', {'data': reponse})
+        complete_reponse += reponse
+    return complete_reponse
 
 
 @app.route('/load_model')
@@ -240,5 +250,5 @@ def get_model_status():
         return jsonify({"error": "Impossible d'obtenir le status du modèle"}), response.status_code
 
 if __name__ == '__main__':
-    app.run(app, debug=True)
+    socketio.run(app, debug=True)
 
