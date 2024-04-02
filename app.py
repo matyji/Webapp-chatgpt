@@ -151,6 +151,7 @@ async def send_request_model():
 
     # Chemin vers le fichier messages.jsonl dans le dossier du thread
     jsonl_file_path = os.path.join('Threads', thread_id, 'messages.jsonl')
+    thread_json_path = os.path.join('Threads', thread_id, 'thread.json')
 
     # Récupérer l'historique des messages et filtrer pour n'obtenir que {"role": ..., "content": ...}
     messages_history = []
@@ -178,6 +179,16 @@ async def send_request_model():
     # Traiter la réponse de l'IA
     current_date = datetime.now() 
     date_update = current_date.strftime("%d/%m/%Y %H:%M")
+
+    with open(thread_json_path, 'r+', encoding='utf-8') as file:
+        thread_data = json.load(file)
+        thread_data['date_update'] = date_update
+        if thread_data['content'] == "No new message":  # Si messages_history est vide
+            thread_data['content'] = complete_reponse
+        file.seek(0)
+        json.dump(thread_data, file, ensure_ascii=False, indent=4)
+        file.truncate()
+
     data_assistant = {
         "thread_id": thread_id,
         "role": "assistant",

@@ -68,7 +68,7 @@ async function sendMessage(valeurInput) {
 }
 
 $(document).ready(function(){
-    var socket = io.connect(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port);
+    let socket = io.connect(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port);
     socket.on('connect', function() {
         console.log('Websocket connecté');
     });
@@ -78,13 +78,13 @@ $(document).ready(function(){
             scrollToBottomMessage();
           };
         // Trouver la dernière div .message.assistant-message dans .messages-container
-        var lastAssistantMessage = $('.messages-container .message.assistant-message').last();
+        let lastAssistantMessage = $('.messages-container .message.assistant-message').last();
     
         // À l'intérieur de cette div, trouver .message-content-assistant
-        var messageContentAssistant = lastAssistantMessage.find('.message-assistant-content');
+        let messageContentAssistant = lastAssistantMessage.find('.message-assistant-content');
     
         // Vérifier si le message contient une propriété 'data' ou ajuster selon la structure de 'msg'
-        var messageText = msg.data;
+        let messageText = msg.data;
     
         // Ajouter le texte du message à l'élément .message-content-assistant
         // Assurez-vous que messageContentAssistant n'est pas vide et existe dans le DOM
@@ -141,6 +141,7 @@ function get_AI_reponse(userInput) {
                 dataType: "json",
                 success: function(response) {
                     console.log('Prompt envoyé avec succès');
+                    load_Threads();
                     // Vous pouvez également choisir d'initialiser l'interface ici si nécessaire
                 },
                 error: function(error) {
@@ -157,6 +158,7 @@ function get_AI_reponse(userInput) {
             dataType: "json",
             success: function(response) {
                 console.log('Prompt envoyé avec succès');
+                load_Threads();
                 // Vous pouvez également choisir d'initialiser l'interface ici si nécessaire
             },
             error: function(error) {
