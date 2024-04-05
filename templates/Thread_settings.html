@@ -11,8 +11,8 @@
 </div>
 <div class="toolbar">
     <div class="toolbar-left">
-        <button class="toolbar-button">
-            <svg class="toolbar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <button class="toolbar-button" id="show-assistant-settings">
+            <svg class="toolbar-icon" id="show-assistant-settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="m6 9 6 6 6-6"></path>
             </svg>
         </button>
@@ -26,21 +26,25 @@
         </svg>
     </div>
 </div>
-<div class="toolbar">
-    <div class="toolbar-left">
-        <button class="toolbar-button">
-            <svg class="toolbar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="m6 9 6 6 6-6"></path>
-            </svg>
-        </button>
-        <span class="toolbar-text">Model</span>
+
+<div class="widget-container" id="assistant-settings" style="display: none;">
+    <div class="widget-header">
+      <img src="/static/images/ai.png" alt="Jan - Logo" class="widget-logo">
+      <span class="widget-title">Hephaistos</span>
     </div>
-    <div class="toolbar-icon">
-        <svg class="dots-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="1"></circle>
-            <circle cx="12" cy="5" r="1"></circle>
-            <circle cx="12" cy="19" r="1"></circle>
-        </svg>
+    <label for="assistant-instructions" class="label">Instructions</label>
+    <textarea id="assistant-instructions" class="widget-textarea" placeholder="E.g., You are a helpful assistant."></textarea>
+    <div class="dropdown-item">
+    <div class="toolbar bis">
+        <div class="toolbar-left">
+            <span class="toolbar-text">Chat with documents</span>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="RAG">
+            <span class="slider round"></span>
+          </label>
     </div>
-</div>
+    </div>
+  </div>
+  
 

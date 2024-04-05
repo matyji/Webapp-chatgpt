@@ -83,6 +83,10 @@
     cursor: pointer;
 }
 
+.rotate{
+    transform: rotate(180deg);
+}
+
 .toolbar-text {
     font-weight: bold;
     font-size: 14px;
@@ -98,3 +102,336 @@
 .dark .toolbar-button, .dark .menu-icon {
     background-color: #262629; /* dark:bg-zinc-900 */
 }
+
+.Settings{
+    max-height: 75rem;
+    overflow-y: auto;
+}
+
+.widget-container {
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .widget-logo {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .widget-title {
+    font-weight: bold;
+  }
+  
+  .widget-label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .widget-textarea {
+    width: 100%;
+    max-height: 25rem;
+    overflow-y: auto;
+    border: 1px solid #333; /* Adjust border color as needed */
+    border-radius: 0.375rem; /* Adjust border-radius as needed */
+    resize: none;
+    background-color: black;
+    color: white;
+    padding: 0.5rem;
+    height: 4rem;
+    font-size: medium;
+    margin-bottom: 5%;
+    margin-top: 5%;
+}
+
+.widget-textarea:focus-visible{
+    outline: 1px solid #2463eb;
+}
+  
+  .widget-dropdown {
+    background-color: transparent;
+    border: none;
+    color: white;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .dropdown-icon {
+    display: inline-block;
+    margin-right: 5px;
+  }
+  
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    margin: 0.5rem;
+  }
+  
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #A8A29E;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #2463EB;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2463EB;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+  .bis{
+    border-radius: 0.5rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .bis2{
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .dropdown-container {
+    color: white;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #FFF;
+    cursor: pointer;
+    border: 1px solid #333;
+    margin-bottom: 8%;
+  }
+  
+  .dropdown-title {
+    margin-bottom: 0;
+  }
+  
+  .dropdown-caret {
+    transform: rotate(0); /* Default state */
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .dropdown-caret svg {
+    color: #FFF;
+  }
+  
+  /* When the dropdown is active/expanded, rotate the caret */
+  .dropdown-header.active .dropdown-caret {
+    transform: rotate(180deg);
+  }
+  
+  
+  .dropdown-icon {
+    cursor: pointer;
+  }
+  
+  .dropdown-item{
+    margin-bottom: 5%;
+  }
+  
+  .dropdown-button {
+    background-color: #20232A;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .dropdown-button::after {
+    font-size: 12px;
+  }
+  
+  .input-group {
+    padding: 10px;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border: 1px solid #333;
+  }
+  
+  .input-label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .input-textarea {
+    width: 100%;
+    background-color: #2A2E35;
+    border: none;
+    padding: 8px;
+    color: #FFF;
+    border-radius: 4px;
+    height: 50px;
+  }
+  
+  .slider-container {
+    display: flex;
+    flex-wrap: column;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  
+  .input-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 5px;
+    background: #4A4E55;
+    outline: none;
+  }
+  
+  .input-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #FFC107;
+    cursor: pointer;
+  }
+  
+  .input-number {
+    background-color: #2A2E35;
+    border: none;
+    color: #FFF;
+    padding: 6px;
+    width: 80px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  .context-length-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.context-label-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adjust gap as needed */
+    margin-bottom: 12px;
+}
+
+.context-label {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 600;
+    color: #718096; /* Replace with your actual dark/light mode colors */
+}
+
+.info-icon {
+    flex-shrink: 0;
+    color: #718096; /* Same as above, for dark mode you can adjust */
+}
+
+.slider-values-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.slider-value {
+    font-size: 0.875rem; /* 14px */
+    color: #718096;
+    margin: 4%;
+}
+
+.context-input {
+    margin-top: -16px; /* Adjust as needed to align with slider */
+    height: 32px; /* Adjust input height as needed */
+    width: 80px; /* Adjust input width as needed */
+    background-color: #edf2f7; /* input background color */
+}
+
+/* For Chrome, Safari, Edge, Opera */
+.input-number::-webkit-inner-spin-button,
+.input-number::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+.input-number[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* For all browsers */
+.input-number {
+  /* If you want to hide the arrows for all browsers */
+  appearance: none;
+}
+
+.input-number:focus-visible{
+    outline: 1px solid #2463eb;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    background: #1F2937;
+    border-radius: 5px;
+    background-image: linear-gradient(#2563EB, #2563EB);
+    background-repeat: no-repeat;
+  }
+  
