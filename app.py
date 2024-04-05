@@ -9,9 +9,21 @@ import shutil
 import requests
 from Thread import Thread
 from flask_socketio import SocketIO
+from langchain import hub
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.vectorstores import Chroma
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_core.prompts import PromptTemplate
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+global vectorstore
+vectorstore = None
 
 @app.route('/')
 def index():
@@ -128,8 +140,6 @@ def update_thread(thread_id):
 
         # Mise à jour du titre dans les données chargées
         thread_data['titre'] = data.get('titre', '')
-        thread_data['content'] = data.get('content', '')
-        thread_data['date_update'] = data.get('date_update', '')
 
 
         # Réécriture du fichier thread.json avec le titre mis à jour
@@ -140,6 +150,57 @@ def update_thread(thread_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/update_assistant_settings/<thread_id>', methods=['POST'])
+def update_assistant_settings(thread_id):
+    # Le chemin vers le dossier contenant les threads
+    thread_dir = os.path.join('Threads', thread_id)
+    thread_file_path = os.path.join(thread_dir, 'thread.json')
+
+    if not os.path.exists(thread_file_path):
+        return jsonify({'error': 'Thread not found'}), 404
+
+    # Récupération des données envoyées par la requête POST
+    data = request.get_json()
+
+    try:
+        # Chargement du contenu actuel du fichier thread.json
+        with open(thread_file_path, 'r', encoding='utf-8') as file:
+            thread_data = json.load(file)
+
+        # Mise à jour du titre dans les données chargées
+        thread_data['assistant_settings']['instructions'] = data.get('textareaValue', '')
+        thread_data['assistant_settings']['RAG'] = data.get('checkboxChecked', '')
+
+
+        # Réécriture du fichier thread.json avec le titre mis à jour
+        with open(thread_file_path, 'w', encoding='utf-8') as file:
+            json.dump(thread_data, file, ensure_ascii=False, indent=4)
+
+        return jsonify({'message': 'Assistant settings updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get_assistant_settings/<thread_id>')
+def get_assistant_settings(thread_id):
+    # Le chemin vers le dossier contenant les threads
+    thread_dir = os.path.join('Threads', thread_id)
+    thread_file_path = os.path.join(thread_dir, 'thread.json')
+
+    if not os.path.exists(thread_file_path):
+        return jsonify({'error': 'Thread not found'}), 404
+
+    try:
+        # Chargement du contenu actuel du fichier thread.json
+        with open(thread_file_path, 'r', encoding='utf-8') as file:
+            thread_data = json.load(file)
+
+        # Mise à jour du titre dans les données chargées
+        assistant_settings = thread_data.get('assistant_settings', '')
+
+        return jsonify(assistant_settings), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/get_AI_reponse', methods=['POST'])
 async def send_request_model():
@@ -147,7 +208,9 @@ async def send_request_model():
     data_user = request.json
     thread_id = data_user.get("thread_id", "")
     user_message = data_user.get("content", "")
-    prompt = "Tu es un assistant IA réponds moi uniquement en Francais:" + user_message
+    instructions = data_user.get("instructions", "")
+    RAG = data_user.get("RAG", "")
+    prompt = instructions + "Reponds moi uniquement en Francais:" + user_message
 
     # Chemin vers le fichier messages.jsonl dans le dossier du thread
     jsonl_file_path = os.path.join('Threads', thread_id, 'messages.jsonl')
@@ -168,13 +231,15 @@ async def send_request_model():
 
     except FileNotFoundError:
         print("Le fichier messages.jsonl n'a pas été trouvé.")
-
     
     # Ajouter le dernier message de l'utilisateur à la fin de l'historique
     messages_history.append({"role": "user", "content":  prompt})
 
     # Envoyer la requête au modèle avec l'historique des messages comme contexte
-    complete_reponse = generate_reponse(messages_history)
+    if RAG:
+        complete_reponse = generate_RAG_reponse(prompt)
+    else:
+        complete_reponse = generate_reponse(messages_history)
 
     # Traiter la réponse de l'IA
     current_date = datetime.now() 
@@ -216,8 +281,8 @@ def generate_reponse(messages_history):
     response = client.chat.completions.create(
         model="/chemin/vers/votre/modele",
         max_tokens=2048,
-        messages=messages_history,
-        stream = True
+        stream = True,
+        messages=messages_history
     )
     complete_reponse = ""
     for chunk in response:
@@ -226,6 +291,54 @@ def generate_reponse(messages_history):
         complete_reponse += reponse
     return complete_reponse
 
+def generate_RAG_reponse(question):
+    # Recuperer localement le vectorestore
+    global vectorstore
+    if vectorstore is None:
+        embeddings = HuggingFaceEmbeddings(model_name="WhereIsAI/UAE-Large-V1")
+        vectorstore = Chroma(
+            persist_directory="./BD",
+            embedding_function=embeddings,
+        )
+    retriever = vectorstore.as_retriever()
+    #prompt = PromptTemplate.from_template("""Vous êtes assistant pour les tâches de réponses aux questions. Utilisez les éléments de contexte récupérés suivants pour répondre uniquement en francais à la question. Si vous ne connaissez pas la réponse, dites simplement que vous ne la savez pas. Utilisez trois phrases maximum et gardez la réponse concise.
+    #    Question : {question}
+    #    Context : {context}
+    #    Répondre:"""
+    #)
+    prompt = PromptTemplate.from_template("""Vous êtes un assistant expert python. Si vous ne connaissez pas la réponse, dites simplement que vous ne la savez pas. Utilisez trois phrases maximum et gardez la réponse concise.
+        Question : {question}
+        Context : {context}
+        Répondre:"""
+    )
+    llm = ChatOpenAI(
+        base_url="http://localhost:3928/v1/",
+        api_key="sk-xxx"
+    )
+
+
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+
+    rag_chain_from_docs = (
+        RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    rag_chain_with_source = RunnableParallel(
+        {"context": retriever, "question": RunnablePassthrough()}
+    ).assign(answer=rag_chain_from_docs)
+
+    final_reponse = ""
+    for chunk in rag_chain_with_source.stream(question):
+        if 'answer' in chunk and chunk['answer']:  # Vérifie si 'answer' est dans chunk et n'est pas vide
+            socketio.emit('response', {'data': chunk["answer"]})
+            final_reponse += chunk["answer"]
+    return final_reponse
+        
 
 @app.route('/load_model')
 def load_model():

@@ -128,8 +128,10 @@ function processCodeBlocks(container) {
 
 function get_AI_reponse(userInput) {
     const threadID = document.getElementById("thread-id").textContent;
+    const instructions = document.getElementById("assistant-instructions").value;
+    const rag = document.getElementById('RAG').checked;
     let date_update = getCurrentDateTimeFormatted();
-    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput};
+    let data_user = {"thread_id":threadID,"role":"user","date_creation":date_update,"date_update":date_update,"object":"thread.message","type":"text","content": userInput, "instructions": instructions, "RAG": rag};
     let model_status = document.querySelector(".status-text").style.color;
     if(model_status == "rgb(220, 20, 60)"){
         loadModel().then(()=>{
@@ -237,6 +239,12 @@ function createMessageAssistantFromTemplate(templateName,content, date) {
 }
 
 function formatMessageContent(messageContent) {
+    // S'assurer que messageContent est une chaîne
+    if (typeof messageContent !== 'string') {
+        console.error('formatMessageContent appelé avec un type non-string:', messageContent);
+        return ''; // Retourne une chaîne vide si messageContent n'est pas une chaîne
+    }
+
     // Détection et formatage des blocs de code avec l'indication de langage pour highlight.js
     const codeRegex = /```(\w+)?\n([\s\S]*?)```/g; // Regex pour détecter les blocs de code avec langage facultatif
 
@@ -248,7 +256,7 @@ function formatMessageContent(messageContent) {
                     <span>
                         <button class="flex gap-1 items-center copy-code-button">
                             <svg class="icon-sm" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.5C10.8954 3.5 10 4.39543 10 5.5H14C14 4.39543 13.1046 3.5 12 3.5ZM8.53513 3.5C9.22675 2.3044 10.5194 1.5 12 1.5C13.4806 1.5 14.7733 2.3044 15.4649 3.5H17.25C18.9069 3.5 20.25 4.84315 20.25 6.5V18.5C20.25 20.1569 19.1569 21.5 17.25 21.5H6.75C5.09315 21.5 3.75 20.1569 3.75 18.5V6.5C3.75 4.84315 5.09315 3.5 6.75 3.5H8.53513ZM8 5.5H6.75C6.19772 5.5 5.75 5.94772 5.75 6.5V18.5C5.75 19.0523 6.19772 19.5 6.75 19.5H17.25C18.0523 19.5 18.25 19.0523 18.25 18.5V6.5C18.25 5.94772 17.8023 5.5 17.25 5.5H16C16 6.60457 15.1046 7.5 147.5H10C8.89543 7.5 8 6.60457 8 5.5Z" fill="currentColor"></path>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="m5 12 4.7 4.5 9.3-9"/>
                             </svg>
                             Copy code
                         </button>
@@ -319,28 +327,6 @@ function setModeleInactive(){
     document.querySelector(".status-dot").style.backgroundColor = "#ff3c3c";
 }
 
-function updateThread_attribute(threadID, newTitle, content, date) {
-    fetch(`/update_thread/${threadID}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({titre: newTitle, content: content, date_update: date})
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        load_Threads();
-        // Vous pouvez ici mettre à jour l'interface utilisateur pour refléter le changement de titre
-    })
-    .catch((error) => {
-        console.error('Erreur:', error);
-    });
-}
 
   
 

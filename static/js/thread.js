@@ -25,6 +25,7 @@ async function load_Threads() {
             document.getElementById("Thread-title").textContent = thread.titre;
             document.getElementById("thread-title-input").value = thread.titre;
             document.getElementById("thread-id").textContent = thread.id;
+            get_assistant_settings(thread.id);
 
             lastThreadId = thread.id; // Mettre à jour le dernier ID de thread
         }
@@ -56,6 +57,7 @@ document.getElementById('new-thread-btn').addEventListener('click', function() {
                     document.getElementById("Thread-title").textContent = data['titre'];
                     document.getElementById("thread-title-input").value = data['titre'];
                     document.getElementById("thread-id").textContent = data['id'];
+                    get_assistant_settings(data['id']);
                 });
         })
         .catch(error => console.error('Error:', error));
@@ -111,6 +113,7 @@ function addClickListenerToThread(threadElement, data) {
         document.getElementById("Thread-title").textContent = data['titre'];
         document.getElementById("thread-title-input").value = data['titre'];
         document.getElementById("thread-id").textContent = data['id'];
+        get_assistant_settings(data['id']);
         displayChat(data['id']);
     });
 }
@@ -159,6 +162,16 @@ function deleteThread(threadId) {
         return response.json();
     })
     .then(data => {
+
+        if(document.getElementById("assistant-instructions")){
+            document.getElementById("assistant-instructions").value = "";
+        }
+        if(document.getElementById('RAG')){
+            document.getElementById('RAG').checked = false;
+        }
+        document.getElementById("Thread-title").textContent = "";
+        document.getElementById("thread-title-input").value = "";
+        document.getElementById("thread-id").textContent = "";
         load_Threads(); // Recharger les threads après la suppression
         document.querySelector(".notification-message").textContent = `Thread ${threadId} successfully deleted.`;
         document.querySelector(".notification").style.display = 'flex'; // Affiche la notification
@@ -183,6 +196,8 @@ function cleanThread(threadId) {
         return response.json();
     })
     .then(data => {
+        // a faire supprimer parametres thread
+
         load_Threads(); // Recharger les threads après la suppression
     })
     .catch(error => console.error('Error:', error));

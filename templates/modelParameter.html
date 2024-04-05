@@ -1,0 +1,185 @@
+<div class="toolbar">
+    <div class="toolbar-left">
+        <button class="toolbar-button" id="show-model-settings">
+            <svg class="toolbar-icon" id="show-model-settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="m6 9 6 6 6-6"></path>
+            </svg>
+        </button>
+        <span class="toolbar-text">Model</span>
+    </div>
+    <div class="toolbar-icon">
+        <svg class="dots-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="12" cy="5" r="1"></circle>
+            <circle cx="12" cy="19" r="1"></circle>
+        </svg>
+    </div>
+</div>
+<div class="dropdown-container" id="model-settings" style="display: none;">
+    <div class="dropdown-header">
+        <span class="dropdown-title label">Mistral Instruct 7B Q4</span>
+        <!--<div class="dropdown-caret">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div> -->
+      </div>      
+    <div class="dropdown-section">
+        <div class="dropdown-item">
+            <div class="toolbar bis" id="toolbar-inference">
+                <div class="toolbar-left">
+                    <button class="toolbar-button" id="show-inference-settings">
+                        <svg class="toolbar-icon" id= "show-inference-settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                    </button>
+                    <span class="toolbar-text">Inference Parameters</span>
+                </div>
+            </div>
+            <div class="input-group" id="inference-settings" style="display: none;">
+                <!-- Frequency Penalty Control -->
+                <div class="context-length-container">
+                    <div class="context-label-container">
+                        <label class="label">Frequence Penalty</label>
+                        <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track-container">
+                            <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="">
+                        <div class="slider-values-container">
+                            <p class="slider-value min">0</p>
+                            <p class="slider-value max">4096</p>
+                        </div>
+                        </div>
+                        <input type="number" class="input-number" min="0" max="4096" value="4096" id="">
+                    </div>
+                </div>
+              
+                <!-- Max Tokens Control -->
+                <div class="context-length-container">
+                    <div class="context-label-container">
+                        <label class="label">Max tokens</label>
+                        <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track-container">
+                            <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="">
+                        <div class="slider-values-container">
+                            <p class="slider-value min">0</p>
+                            <p class="slider-value max">4096</p>
+                        </div>
+                        </div>
+                        <input type="number" class="input-number" min="0" max="4096" value="4096" id="">
+                    </div>
+                </div>
+              
+                <!-- Presence Penalty Control -->
+                <div class="context-length-container">
+                    <div class="context-label-container">
+                        <label class="label">Presence Penalty</label>
+                        <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track-container">
+                            <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="">
+                        <div class="slider-values-container">
+                            <p class="slider-value min">0</p>
+                            <p class="slider-value max">4096</p>
+                        </div>
+                        </div>
+                        <input type="number" class="input-number" min="0" max="4096" value="4096" id="">
+                    </div>
+                </div>
+              
+                <!-- Stop Sequence Control -->
+                <div class="control-block">
+                  <label for="stop-sequence" class="clabel">Stop</label>
+                  <textarea id="stop-sequence" name="stop-sequence" class="widget-textarea"></textarea>
+                </div>
+              
+                <!-- Temperature Control -->
+                <div class="context-length-container">
+                    <div class="context-label-container">
+                        <label class="label">Temperature</label>
+                        <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track-container">
+                            <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="">
+                        <div class="slider-values-container">
+                            <p class="slider-value min">0</p>
+                            <p class="slider-value max">4096</p>
+                        </div>
+                        </div>
+                        <input type="number" class="input-number" min="0" max="4096" value="4096" id="">
+                    </div>
+                </div>
+
+                <!-- Top P-->
+                <div class="context-length-container">
+                    <div class="context-label-container">
+                        <label class="label">Top P</label>
+                        <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track-container">
+                            <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="">
+                        <div class="slider-values-container">
+                            <p class="slider-value min">0</p>
+                            <p class="slider-value max">4096</p>
+                        </div>
+                        </div>
+                        <input type="number" class="input-number" min="0" max="4096" value="4096" id="">
+                    </div>
+                </div>
+            </div>              
+        </div>
+      <div class="dropdown-item">
+        <div class="toolbar bis2" id="toolbar-model-parameters">
+            <div class="toolbar-left">
+                <button class="toolbar-button" id="show-model-parameters">
+                    <svg class="toolbar-icon rotate" id="show-model-parameters-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+                <span class="toolbar-text">Model Parameters</span>
+            </div>
+        </div>
+        <div class="input-group" id="model-parameters">
+          <label class="label">Prompt template</label>
+          <textarea class="widget-textarea">[INST] {prompt} [/INST]</textarea>
+        </div>
+      </div>
+      <div class="dropdown-item">
+        <div class="toolbar bis2" id="toolbar-engine-settings">
+            <div class="toolbar-left">
+                <button class="toolbar-button" id="show-engine-settings">
+                    <svg class="toolbar-icon rotate" id="show-engine-settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+                <span class="toolbar-text">Engine Parameters</span>
+            </div>
+        </div>
+        <div class="input-group" id="engine-settings">
+          <div class="context-length-container">
+            <div class="context-label-container">
+                <label class="label">Context Length</label>
+                <img src="/static/images/info.png" alt="Assistant Logo" class="assistant-logo" width="16" height="16">
+            </div>
+            <div class="slider-container">
+                <div class="slider-track-container">
+                    <input type="range" class="input-slider" min="0" max="4096" oninput="rangevalue.value=value" value="4096" id="slider-ctx">
+                <div class="slider-values-container">
+                    <p class="slider-value min">0</p>
+                    <p class="slider-value max">4096</p>
+                </div>
+                </div>
+                <input type="number" class="input-number" min="0" max="4096" value="4096" id="input-ctx">
+            </div>
+        </div>
+        
+        </div>
+      </div>
+    </div>
+  </div>
