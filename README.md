@@ -48,7 +48,7 @@ Pour démarrer avec Hephaistos, suivez ces étapes simples :
 
 6. Fermer l'application ( important pour ferme le server nitro)
 
-- ```./stop_app.sh```
+- ```./stop_App.sh```
 
 ### Documentation & Support
 
