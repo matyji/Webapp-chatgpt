@@ -170,7 +170,16 @@ function get_AI_reponse(userInput) {
     }
 }
 
-document.getElementById('send-button').addEventListener('click', sendMessage);
+document.getElementById('send-button').addEventListener('click', function(event) {
+        // Récupérer la valeur entrée par l'utilisateur
+        let userInput = document.getElementById('message-input').value;
+        // Réinitialiser la valeur de l'input
+        document.getElementById('message-input').value = ''; 
+        // Envoyer le message
+        sendMessage(userInput);
+        // Enlever le focus de l'input pour faire disparaître le curseur
+        document.getElementById('message-input').blur();
+});
 document.getElementById('message-input').addEventListener('keydown', function(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         // Récupérer la valeur entrée par l'utilisateur
