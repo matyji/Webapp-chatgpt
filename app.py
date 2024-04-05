@@ -237,7 +237,7 @@ async def send_request_model():
 
     # Envoyer la requête au modèle avec l'historique des messages comme contexte
     if RAG:
-        complete_reponse = generate_RAG_reponse(prompt)
+        complete_reponse = generate_RAG_reponse(messages_history)
     else:
         complete_reponse = generate_reponse(messages_history)
 
